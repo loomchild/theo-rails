@@ -1,5 +1,3 @@
-class Theo
-  def self.hi
-    puts "Hello world!"
-  end
-end
+require 'theo/theo'
+require 'theo/railtie' if defined?(Rails::Railtie)
+

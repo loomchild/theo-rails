@@ -6,10 +6,6 @@ module Theo
 
   RXA = %r{^<%=([^%]*)%>$}
 
-  # RX = %r{(<\s*(?!#{ELEMENTS.join('|')})([a-z0-9_-]+)[^>]*>(.*?)</\1>)}i
-
-  # XPATH="//*[not(#{ELEMENTS.map { |element| 'self::' + element }.join(' or ')})]"
-
   class Theo
     def process(source)
       source.gsub(RX) do |_|
@@ -40,20 +36,6 @@ module Theo
     end
 
     def call(template, source = nil)
-      #theo = Nokogiri::HTML(source)
-
-      #theo.xpath(XPATH).each do |node|
-      #  p node
-      #end
-
-      #"'#{theo.to_html}'"
-
-      #theo = source
-      #  .gsub(RX, '<%= render "\1" do%>\2<% end %>')
-      #  .gsub(RX, '<%= render "\1" do%>\2<% end %>')
-        #.gsub(RX, '<%= render "\2" do%>\3<% end rescue "\1".html_safe %>')
-      #"'AAAA' + render('btn') + 'BBBB'"
-
       theo = process(source)
 
       p theo

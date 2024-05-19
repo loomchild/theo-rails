@@ -1,11 +1,11 @@
-Gem::Specification.new do |s|
-  s.name        = "theo"
-  s.version     = "0.0.0"
-  s.summary     = "Theo is HTML-like template language"
-  s.description = "HTML-like template language with natural partials and helpers syntax"
-  s.authors     = ["Jarek Lipski"]
-  s.email       = "jarek@jareklipski.com"
-  s.files       = ["lib/theo", "lib/theo/theo.rb", "lib/theo/railtie.rb"]
-  s.homepage    = "https://github.com/loomchild/theo"
-  s.license     = "MIT"
+Gem::Specification.new do |spec|
+  spec.name        = "theo"
+  spec.version     = "0.0.0"
+  spec.summary     = "Theo is HTML-like template language"
+  spec.description = "HTML-like template language with natural partials and helpers syntax"
+  spec.authors     = ["Jarek Lipski"]
+  spec.email       = "jarek@jareklipski.com"
+  spec.homepage    = "https://github.com/loomchild/theo"
+  spec.license     = "MIT"
+  spec.files       = Dir['lib/**/*.rb'] + Dir['app/**/*']
 end

@@ -7,15 +7,20 @@ module Theo
     def process(source)
       source.gsub(RX) do |_|
         match = Regexp.last_match
-        partial = match[1].delete_suffix('-partial')
+        partial = match[1].delete_suffix('-partial').underscore
         content = match[3].strip
 
-        locals = (match[2] || '')
+        attributes = (match[2] || '')
           .scan(LX)
           .map { |name, literal, value| [name.to_sym, attribute(value, literal:)] }
           .to_h
 
-        "<%= render '#{partial}', {#{locals.map {|k,v| "#{k}: #{v}"}.join(', ')}} do %>#{process(content)}<% end %>"
+        if attributes[:path]
+          path = attributes.delete(:path).delete_prefix("'").delete_suffix("'")
+          partial = "#{path}/#{partial}"
+        end
+
+        "<%= render '#{partial}', {#{attributes.map {|k,v| "#{k}: #{v}"}.join(', ')}} do %>#{process(content)}<% end %>"
       end
     end
 

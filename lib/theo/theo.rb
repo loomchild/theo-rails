@@ -1,8 +1,8 @@
 module Theo
-  TX = '\s*([a-z0-9-]+-partial)\s*(.*?)(?<!%)'
+  TX = '\s*([a-z0-9-]+-partial)\s*(.*?)(?<!%)'.freeze
   RX = %r{(?:<#{TX}>(.*?)</\1>)|(?:<#{TX}/>)}im
-  LX = %r{\s*([^=]+?)\s*(%)?=\s*"([^"]*)"}
-  RXA = %r{^<%=([^%]*)%>$}
+  LX = /\s*([^=]+?)\s*(%)?=\s*"([^"]*)"/
+  RXA = /^<%=([^%]*)%>$/
 
   class Theo
     def process(source)
@@ -22,6 +22,18 @@ module Theo
           partial = "#{path}/#{partial}"
         end
 
+        collection = ''
+        if attributes[:collection]
+          collection = attributes.delete(:collection).delete_prefix("'").delete_suffix("'")
+
+          as = ''
+          if attributes[:as]
+            as = attributes.delete(:as).delete_prefix("'").delete_suffix("'")
+            as = ", as: '#{as}'"
+          end
+          collection = ", collection: #{collection}#{as}"
+        end
+
         arg = nil
         if attributes[:arg]
           arg = attributes.delete(:arg)
@@ -30,12 +42,10 @@ module Theo
           arg = "|#{arg}|"
         end
 
-        output = "<%= render '#{partial}', {#{attributes.map {|k,v| "#{k}: #{v}"}.join(', ')}} "
-
         if content
-          output << "do #{ arg || '' } %>#{process(content)}<% end %>"
+          output = "<%= render '#{partial}', {#{attributes.map {|k,v| "#{k}: #{v}"}.join(', ')}} do #{ arg || '' } %>#{process(content)}<% end %>"
         else
-          output << "%>"
+          output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "#{k}: #{v}"}.join(', ')}} %>"
         end
 
         output

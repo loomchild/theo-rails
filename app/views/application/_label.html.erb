@@ -1,2 +1,6 @@
-<%# locals: (form:, name: nil) -%>
-<%= form.label name %>
+<%# locals: (form:, name:, **attributes) -%>
+<% if (block = yield).present? %>
+  <%= form.label name, **attributes do %><%= block %><% end %>
+<% else %>
+  <%= form.label name, **attributes %>
+<% end %>

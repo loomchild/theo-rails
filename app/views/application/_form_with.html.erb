@@ -1,4 +1,4 @@
-<%# locals: (url: nil, **attributes) -%>
-<%= form_with url:, html: attributes do |form| %>
+<%# locals: (url: nil, model:nil, **attributes) -%>
+<%= form_with url:, model:, html: attributes do |form| %>
   <% yield form %>
 <% end %>

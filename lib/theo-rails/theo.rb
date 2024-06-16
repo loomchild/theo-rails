@@ -1,6 +1,6 @@
 module Theo
   module Rails
-    TX = '\s*([a-z0-9-]+-partial)\s*(.*?)(?<!%)'.freeze
+    TX = '\s*([a-z0-9-]+-partial)\s*([^>]*?)(?<![%/])'.freeze
     RX = %r{(?:<#{TX}>(.*?)</\1>)|(?:<#{TX}/>)}im
     LX = /\s*([^=%\s]+)\s*(?:(%)?=\s*"([^"]*)")?/
     RXA = /^<%=([^%]*)%>$/

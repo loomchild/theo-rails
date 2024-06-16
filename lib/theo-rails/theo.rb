@@ -2,7 +2,7 @@ module Theo
   module Rails
     TX = '\s*([a-z0-9-]+-partial)\s*(.*?)(?<!%)'.freeze
     RX = %r{(?:<#{TX}>(.*?)</\1>)|(?:<#{TX}/>)}im
-    LX = /\s*([^=]+?)\s*(%)?=\s*"([^"]*)"/
+    LX = /\s*([^=%\s]+)\s*(?:(%)?=\s*"([^"]*)")?/
     RXA = /^<%=([^%]*)%>$/
 
     class Theo
@@ -15,7 +15,7 @@ module Theo
 
           attributes = attributes
             .scan(LX)
-            .map { |name, literal, value| [name.to_sym, attribute(value, literal:)] }
+            .map { |name, literal, value| [name.to_sym, attribute(value || '', literal:)] }
             .to_h
 
           if attributes[:path]

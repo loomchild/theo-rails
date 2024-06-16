@@ -46,7 +46,7 @@ module Theo
           if content
             output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{ arg || '' } %>#{process(content)}<% end %>"
           else
-            output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "#{k}: #{v}"}.join(', ')}} %>"
+            output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} %>"
           end
 
           output

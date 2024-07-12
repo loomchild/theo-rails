@@ -1,50 +1,51 @@
 module Theo
   module Rails
-    TX = '\s*([a-z0-9-]+-partial)\s*([^>]*?)(?<![%/])'.freeze
+    AX = /(?<=\w)\s*%=\s*"(.*?)"(?=\s|>)/
+    TX = '\s*([a-z0-9-]+-partial)\s*(.*?)(?<![%/])'.freeze # TODO: better > handling, in attribute values, allow ': handle as attribute*
     RX = %r{(?:<#{TX}>(.*?)</\1>)|(?:<#{TX}/>)}im
-    LX = /\s*([^=%\s]+)\s*(?:(%)?=\s*"([^"]*)")?/
+    LX = /\s*([^=%\s]+)\s*(?:=\s*"([^"]*)")?/
     RXA = /^<%=([^%]*)%>$/
 
     class Theo
       def process(source)
+        # Attributes
+        source = source.gsub(AX, '="<%= \1 %>"')
+
+        p source
+
+        # Partials
         source.gsub(RX) do |_|
           match = Regexp.last_match
           partial = (match[1] || match[4]).delete_suffix('-partial').underscore
           attributes = match[2] || match[5] || ''
-          content = match[3]&.strip 
+          content = match[3]&.strip
 
-          attributes = attributes
+          attributes =
+            attributes
             .scan(LX)
-            .map { |name, literal, value| [name.to_sym, attribute(value || '', literal:)] }
+            .map { |name, value| [name.to_sym, value || ''] }
             .to_h
 
-          if attributes[:path]
-            path = attributes.delete(:path).delete_prefix("'").delete_suffix("'")
-            partial = "#{path}/#{partial}"
-          end
+          partial = "#{attributes.delete(:path)}/#{partial}" if attributes[:path]
 
           collection = ''
           if attributes[:collection]
-            collection = attributes.delete(:collection).delete_prefix("'").delete_suffix("'")
+            collection = attributes.delete(:collection)
 
             as = ''
             if attributes[:as]
-              as = attributes.delete(:as).delete_prefix("'").delete_suffix("'")
+              as = attributes.delete(:as)
               as = ", as: '#{as}'"
             end
             collection = ", collection: #{collection}#{as}"
           end
 
-          arg = nil
-          if attributes[:arg]
-            arg = attributes.delete(:arg)
-            raise 'arg %= syntax is required' if arg.start_with?("'")
+          arg = "|#{attributes.delete(:arg)}|" if attributes[:arg]
 
-            arg = "|#{arg}|"
-          end
+          attributes.transform_values! { |value| attribute(value) }
 
           if content
-            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{ arg || '' } %>#{process(content)}<% end %>"
+            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{arg || ''} %>#{process(content)}<% end %>"
           else
             output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} %>"
           end
@@ -53,10 +54,8 @@ module Theo
         end
       end
 
-      def attribute(source, literal: false)
+      def attribute(source)
         #TODO: support attributes like "a<%= b %>c
-
-        return source if literal
 
         match = RXA.match(source)
         return match[1] if match

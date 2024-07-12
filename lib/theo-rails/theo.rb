@@ -1,36 +1,38 @@
 module Theo
   module Rails
-    AX = /(?<=\w)\s*%=\s*"(.*?)"(?=\s|>)/
-    TX = '\s*([a-z0-9-]+-partial)\s*(.*?)(?<![%/])'.freeze # TODO: better > handling, in attribute values, allow ': handle as attribute*
-    RX = %r{(?:<#{TX}>(.*?)</\1>)|(?:<#{TX}/>)}im
-    LX = /\s*([^=%\s]+)\s*(?:=\s*"([^"]*)")?/
-    RXA = /^<%=([^%]*)%>$/
+    ATTRIBUTE_NAME = /[\w\-:]+/
+    ATTRIBUTE_VALUE = /(?:(?:"(?<value>[^"]*)")|(?:'(?<value>[^']*)'))/
+    ATTRIBUTE = /(?:(?:(?<name>#{ATTRIBUTE_NAME.source})\s*=\s*#{ATTRIBUTE_VALUE.source})|(?<name>#{ATTRIBUTE_NAME.source}))/
+    DYNAMIC_ATTRIBUTE = /(?:(?<name>#{ATTRIBUTE_NAME.source})\s*%=\s*#{ATTRIBUTE_VALUE.source})/
+    ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
+    PARTIAL_TAG = /(?<partial>[\w-]+-partial)/
+    PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/im
+    DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
 
     class Theo
       def process(source)
         # Attributes
-        source = source.gsub(AX, '="<%= \1 %>"')
-
-        p source
+        source = source.gsub(DYNAMIC_ATTRIBUTE, '\k<name>="<%=\k<value>%>"')
 
         # Partials
-        source.gsub(RX) do |_|
+        source.gsub(PARTIAL) do |_|
           match = Regexp.last_match
-          partial = (match[1] || match[4]).delete_suffix('-partial').underscore
-          attributes = match[2] || match[5] || ''
-          content = match[3]&.strip
+          partial = (match[:partial]).delete_suffix('-partial').underscore
+          attributes = match[:attrs] || ''
+          content = match[:content]&.strip
 
           attributes =
             attributes
-            .scan(LX)
-            .map { |name, value| [name.to_sym, value || ''] }
+            .gsub(ATTRIBUTE)
+            .map { Regexp.last_match }
+            .map { |attr| [attr[:name].to_sym, attr[:value] || ''] }
             .to_h
 
           partial = "#{attributes.delete(:path)}/#{partial}" if attributes[:path]
 
           collection = ''
           if attributes[:collection]
-            collection = attributes.delete(:collection)
+            collection = attribute(attributes.delete(:collection))
 
             as = ''
             if attributes[:as]
@@ -55,12 +57,12 @@ module Theo
       end
 
       def attribute(source)
-        #TODO: support attributes like "a<%= b %>c
+        # TODO: support attributes like "a<%= b %>c
 
-        match = RXA.match(source)
+        match = DYNAMIC_EXPRESSION.match(source)
         return match[1] if match
 
-        "'" + source + "'"
+        "'#{source}'"
       end
 
       def call(template, source = nil)

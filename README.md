@@ -106,6 +106,7 @@ is equivalent to:
 #### `yields` attribute
 
 TODO: better example.
+
 ```
 <address-partial yields="address">
   <%= address %>
@@ -122,10 +123,11 @@ ERB syntax is supported by Theo and they can be mixed freely:
 <my-partial a="<%= a %>" />
 ```
 TODO: better example
+```
 <% if @event.bookings.canceled.any? %>
   <%= @event.title %>
 <% end %>
-
+```
 
 ## Utilities
 
@@ -233,5 +235,5 @@ As an alternative to `yields`.
 ```
 
 This technique is used in forms, to avoid passing `form` attribute.
-Use sparingly, since implicit variable can make code less readable.
+Use sparingly, since implicit variable can make your code less readable.
 

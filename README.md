@@ -132,34 +132,41 @@ Theo includes partials that correspond to [Action View Form Helpers](https://gui
 
 You can use them as follows:
 ```
-  <form-with-partial url%="note" method="delete" class="inline" data-turbo-confirm="Are you sure?">
+  <form-with-partial model%="note" method="delete" class="inline" data-turbo-confirm="Are you sure?">
      <button class="absolute top-0 right-1 enabled:transition enabled:hover:text-blue-500 disabled:cursor-not-allowed disabled:text-transparent">
        ✕
      </button>
   </form-with-partial>
 ```
 
-+    <form-with-partial model%="@note" yields="form">
-+        <text-area-partial form%="form" name="content" rows="3" class="w-full max-w-md text-xs" />
-+
-+      <button-partial label="Add" size="small" />
-+    </form-with-partial>
--    <%= form_with model: @note do |form| %>
--        <%= form.text_area :content, rows: 3, class: 'w-full max-w-md text-xs' %>
--
--      <%= render 'button', label: 'Add', size: :small %>
--    <% end %>
+```
+<form-with-partial model%="@note" yields="form">
+    <text-area-partial form%="form" name="content" rows="3" class="w-full max-w-md text-xs" />
 
+  <button-partial label="Add" size="small" />
+</form-with-partial>
+```
 
-+        <label-partial form%="form" name="email" class="" />
-+        <email-field-partial form%="form" name="email" />
+```
+<form-with-partial model%="@user" url%="session_path" class="w-full sm:w-2/3 md:w-1/2 lg:w-1/3 p-4">
+```
 
+```
+<%= form_with model: @user, url: session_path, class: "w-full sm:w-2/3 md:w-1/2 lg:w-1/3 p-4" do |form| %>
+```
 
-+  <form-with-partial model%="@user" url%="session_path" class="w-full sm:w-2/3 md:w-1/2 lg:w-1/3 p-4" yields="form">
--  <%= form_with model: @user, url: session_path, class: "w-full sm:w-2/3 md:w-1/2 lg:w-1/3 p-4" do |form| %>
+```
+<%= form_with model: @note do |form| %>
+    <%= form.text_area :content, rows: 3, class: 'w-full max-w-md text-xs' %>
 
--        <%= form.submit "Log in", class: "text-xl font-bold mb-4 w-44 px-4 py-2 bg-gray-100 rounded-full flex content-center justify-center transition hover:text-blue-500" %>
-+        <submit-partial form%="form" value="Log in" class="text-xl font-bold mb-4 w-44 px-4 py-2 bg-gray-100 rounded-full flex content-center justify-center enabled:transition enabled:hover:text-blue-500 disabled:cursor-not-allowed disabled:text-transparent bg-center bg-no-repeat disabled:bg-spinner" />
+  <%= render 'button', label: 'Add', size: :small %>
+<% end %>
+```
+
+```
+<label-partial form%="form" name="email" class="" />
+<email-field-partial form%="form" name="email" />
+```
 
 ```
 <form-with-partial data-turbo-confirm="Sure?" yields="form">
@@ -175,31 +182,32 @@ You can use them as follows:
 </form-with-partial>
 ```
 
-+      <form-with-partial model%="@manual_booking" url%="event_manual_bookings_path(@event)" yields="form">
-+        <div class="flex gap-2 flex-wrap">
-+          <div>
-+            <label-partial form%="form" name="name" class="mr-1" />
-+            <text-field-partial form%="form" name="name" />
-+          </div>
-+
-+          <div>
-+            <label-partial form%="form" name="source" class="mr-1" />
-+            <select-partial form%="form" name="source" options%="[['Cash', :cash], ['Free', :free]]" x-model="source" />
-+          </div>
-+
-+          <div x-show="source === 'cash'">
-+            <label-partial form%="form" name="price" class="mr-1" />
-+            <number-field-partial form%="form" name="price" in%="0..100" value%="@event.price.round" class="w-24" />
-+          </div>
-+
-+          <div>
-+            <label-partial form%="form" name="guests" class="mr-1" />
-+            <number-field-partial form%="form" name="guests" in%="0..9" value%="0" class="w-16" />
-+          </div>
-+
-+          <button-partial label="Add" size="big" />
-+      </form-with-partial>
+```
+<form-with-partial model%="@manual_booking" url%="event_manual_bookings_path(@event)" yields="form">
+  <div class="flex gap-2 flex-wrap">
+    <div>
+      <label-partial form%="form" name="name" class="mr-1" />
+      <text-field-partial form%="form" name="name" />
+    </div>
 
+    <div>
+      <label-partial form%="form" name="source" class="mr-1" />
+      <select-partial form%="form" name="source" options%="[['Cash', :cash], ['Free', :free]]" x-model="source" />
+    </div>
+
+    <div x-show="source === 'cash'">
+      <label-partial form%="form" name="price" class="mr-1" />
+      <number-field-partial form%="form" name="price" in%="0..100" value%="@event.price.round" class="w-24" />
+    </div>
+
+    <div>
+      <label-partial form%="form" name="guests" class="mr-1" />
+      <number-field-partial form%="form" name="guests" in%="0..9" value%="0" class="w-16" />
+    </div>
+
+    <button-partial label="Add" size="big" />
+</form-with-partial>
+```
 
 
 ### Helpers

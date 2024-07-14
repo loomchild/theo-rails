@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/theo-rails.svg)](https://badge.fury.io/rb/theo-rails)
+
 # Theo
 Theo is a small and elegant HTML-like template language for Ruby on Rails, with natural partials and computed attributes.
 

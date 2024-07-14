@@ -1,3 +1,5 @@
-<%# locals: (form:, name:, **attributes) -%>
+<%# locals: (form: nil, name:, **attributes) -%>
+<% form ||= inject(:form) %>
+
 <%= form.text_area name, **attributes %>
 

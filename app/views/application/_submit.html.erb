@@ -1,3 +1,5 @@
-<%# locals: (form:, value:, **attributes) -%>
+<%# locals: (form: nil, value:, **attributes) -%>
+<% form ||= inject(:form) %>
+
 <%= form.submit value, **attributes %>
 

@@ -1,2 +1,4 @@
-<%# locals: (form:, name:, **attributes) -%>
+<%# locals: (form: nil, name:, **attributes) -%>
+<% form ||= inject(:form) %>
+
 <%= form.email_field name, **attributes %>

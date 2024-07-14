@@ -42,12 +42,12 @@ module Theo
             collection = ", collection: #{collection}#{as}"
           end
 
-          arg = "|#{attributes.delete(:arg)}|" if attributes[:arg]
+          yields = "|#{attributes.delete(:yields)}|" if attributes[:yields]
 
           attributes.transform_values! { |value| attribute(value) }
 
           if content
-            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{arg || ''} %>#{process(content)}<% end %>"
+            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{yields || ''} %>#{process(content)}<% end %>"
           else
             output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} %>"
           end

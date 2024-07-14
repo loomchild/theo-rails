@@ -1,3 +1,5 @@
-<%# locals: (form:, name:, options:, **attributes) -%>
+<%# locals: (form: nil, name:, options:, **attributes) -%>
+<% form ||= inject(:form) %>
+
 <%= form.select name, options, {}, **attributes %>
 

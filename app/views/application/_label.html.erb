@@ -1,4 +1,6 @@
-<%# locals: (form:, name:, **attributes) -%>
+<%# locals: (form: nil, name:, **attributes) -%>
+<% form ||= inject(:form) %>
+
 <% if (block = yield).present? %>
   <%= form.label name, **attributes do %><%= block %><% end %>
 <% else %>

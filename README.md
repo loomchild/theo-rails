@@ -1,7 +1,7 @@
 [![Gem Version](https://badge.fury.io/rb/theo-rails.svg)](https://badge.fury.io/rb/theo-rails)
 
 # Theo
-Theo is a small and elegant HTML-like template language for Ruby on Rails, with natural partials and computed attributes.
+Theo is a small and elegant HTML-like template language for Ruby on Rails, featuring natural partials and computed attributes.
 
 > [!WARNING]
 > Please note that this software is still experimental - use at your own risk.
@@ -9,7 +9,7 @@ Theo is a small and elegant HTML-like template language for Ruby on Rails, with 
 
 ## Introduction
 
-Thanks to Hotwire, it's now possible to build sophisticated server-rendered user interfaces in Ruby on Rails. Yet ERB, Rails' most popular template language, has unintuitive partial syntax, especially for someone used to working with Vue.js or React components.
+Thanks to Hotwire, it's now possible to build sophisticated server-rendered user interfaces in Ruby on Rails. However, ERB, Rails' most popular template language, has unintuitive partial syntax, especially for those used to working with Vue.js or React components.
 
 With Theo, you can render a partial using HTML-like syntax:
 ```
@@ -33,16 +33,14 @@ If you are using TailwindCSS, add `.theo` extension to the `content` key in your
 
 ### Computed attributes
 
-Computing attribute values in ERB feels awkward, because angle brackets `<>` collide with the surrounding HTML tag.
+Computing attribute values in ERB feels awkward because angle brackets `<>` collide with the surrounding HTML tag.
 
-In Theo an attribute with computed value can be expressed via `%=`.
-
-For example:
-```
+In Theo, an attribute with computed value can be expressed via `%=`. For example:
+```html
 <a href%="root_path">Home</a>
 ```
 is equivalent to:
-```
+```erb
 <a href="<%= root_path%>">Home</a>
 ```
 > [!TIP]  

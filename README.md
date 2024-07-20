@@ -3,35 +3,27 @@
 # Theo
 Theo is a small and elegant HTML-like template language for Ruby on Rails, with natural partials and computed attributes.
 
-> Please note that this software is experimental - use at your own risk.
+> [!WARNING]
+> Please note that this software is still experimental - use at your own risk.
 
 
-## Why?
+## Introduction
 
-Thanks to Hotwire, it's now possible to build sophisticated server-rendered user interfaces without fully-fledged JavaScript framework in Ruby on Rails.
-Components are a fundamental building blocks of an user interface.
-Using partials in ERB feels awkward, because the syntax is alien to the surrounding HTML.
-Also repeating `render` verb makes it harder to think about component hierarchy.
+Thanks to Hotwire, it's now possible to build sophisticated server-rendered user interfaces in Ruby on Rails. Yet ERB, Rails' most popular template language, has unintuitive partial syntax, especially for someone used to working with Vue.js or React components.
 
-Theo syntax is component-oriented and heavily inspired by Vue.js.
-
-TODO: better examples, maybe with credit card
+With Theo, you can render a partial using HTML-like syntax:
 ```
-<note-partial note%="note" size="small" disabled />
-```
-
-It's especially powerful when combined with light HTML-based front-end technology, such as TailwindCSS or Alpine.js:
-```
-<button-partial label="Note→" size="small" x-show="!adding" class="border rounded px-4" @click="adding = true" />
+<button-partial size="small" label%="label" />
 ```
 
 
 ## Installation
+
 Run
 
     gem install theo-rails
 
-If you are using TailwindCSS add `.theo` view filetype to the `content` key in your `tailwind.config.js`:
+If you are using TailwindCSS, add `.theo` extension to the `content` key in your `tailwind.config.js`:
 
     './app/views/**/*.{erb,haml,html,slim,theo}'
 
@@ -41,58 +33,72 @@ If you are using TailwindCSS add `.theo` view filetype to the `content` key in y
 
 ### Computed attributes
 
-Dynamic attributes can be expressed with `%=`.
+Computing attribute values in ERB feels awkward, because angle brackets `<>` collide with the surrounding HTML tag.
+
+In Theo an attribute with computed value can be expressed via `%=`.
 
 For example:
 ```
-<span class%="'red-' + 100">Text</span>
+<a href%="root_path">Home</a>
 ```
 is equivalent to:
 ```
-<span class="<%= 'red-' + 100 %>">Text</span>
+<a href="<%= root_path%>">Home</a>
 ```
-
-They work with partials and standard HTML elements.
+> [!TIP]  
+> Computed attributes work with partials as well as standard HTML tags.
 
 
 ### Partials
 
-Partials are rendered by specifying an element with `-partial` suffix. 
+Rendering ERB partials feels awkward, because they don't resemble components. 
+Require switching context to Ruby.
+the syntax containing angle brackets <> collides with the surrounding HTML.
+Also repeating `render` verb makes it harder to think about a page as consitting of component hierarchy.
+Theo syntax is component-oriented and heavily inspired by Vue.js.
+
+In Theo, you render a partial by writing a tag with `-partial` suffix. 
 
 For example:
 ```html
-<phone-partial number="+33123456789" />
+<button-partial size="large" />`
 ```
 is equivalent to:
 ```erb
-<%= render "phone", number: "+33123456789" %>
+<%= render "button", size: "large" %>
 ```
+
+Partials can also hold content, e.g.:
+```
+<button-partial size="large">
+  Create
+</button-partial>
+```
+
+> [!TIP]
+> Partials themselves can be implemented in ERB, Theo or any other template language.
 
 
 #### Collections
 
-
+You can render a collection of partials as follows:
 ```
-<note-partial collection%="@notes" />
+<widget-partial collection%="widgets" />
 ```
-
+which is equivalent to:
 ```
-<%= render partial: 'note', collection: @notes %>
-```
-
-You can also specify a custom local variable name by using `as` attribute:
-```
-<note-partial collection%="@notes" as="item" />
+<%= render partial: 'widget', collection: @widgets %>
 ```
 
+You can also specify a custom local variable name via `as` attribute, e.g.:
 ```
-<%= render partial: 'note', collection: @notes, as: 'item' %>
+<widget-partial collection%="@widgets" as="item" />
 ```
 
 
 #### Boolean attributes
 
-If an attribute has no value, you can omit it.
+If an attribute has no value, you can skip it, and only specify its name.
 
 For example:
 ```
@@ -102,115 +108,65 @@ is equivalent to:
 ```
 <events-partial past="" />
 ```
-
-#### `yields` attribute
-
-TODO: better example.
-
+which is equivalent to:
 ```
-<address-partial yields="address">
-  <%= address %>
-</address-partial>
+<%= render 'events', { past: '' } %>
+```
+
+#### [`yields` attribute](#yields)
+
+Partials can yield a value, like a builder object that can be used by child partials.
+
+For example:
+```
+<widget-partial yields="widget">
+  <widget-part-partial widget%="widget" />
+</wrapper-partial>
+```
+is equivalent to:
+```
 ```
 
 
 ### ERB backwards compatibility
 
 ERB syntax is supported by Theo and they can be mixed freely:
-
 ```
-<% a = 2 + 2 %>
-<my-partial a="<%= a %>" />
-```
-TODO: better example
-```
-<% if @event.bookings.canceled.any? %>
-  <%= @event.title %>
+<% if total_amount > 100 %>
+  <free-shipping-partial amount%="total_amount" />
 <% end %>
 ```
 
 ## Utilities
 
 ### Forms
-Theo includes partials that correspond to [Action View Form Helpers](https://guides.rubyonrails.org/form_helpers.html).
 
-You can use them as follows:
-```
-  <form-with-partial model%="note" method="delete" class="inline" data-turbo-confirm="Are you sure?">
-     <button class="absolute top-0 right-1 enabled:transition enabled:hover:text-blue-500 disabled:cursor-not-allowed disabled:text-transparent">
-       ✕
-     </button>
-  </form-with-partial>
-```
+You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html). This creates a confusing mix of Ruby code and HTML markup in your templates.
 
-```
-<form-with-partial model%="@note" yields="form">
-    <text-area-partial form%="form" name="content" rows="3" class="w-full max-w-md text-xs" />
+In Theo, you can use partials that correspond to the form helpers instead.
 
-  <button-partial label="Add" size="small" />
-</form-with-partial>
+For example:
 ```
-
-```
-<form-with-partial model%="@user" url%="session_path" class="w-full sm:w-2/3 md:w-1/2 lg:w-1/3 p-4">
-```
-
-```
-<%= form_with model: @user, url: session_path, class: "w-full sm:w-2/3 md:w-1/2 lg:w-1/3 p-4" do |form| %>
-```
-
-```
-<%= form_with model: @note do |form| %>
-    <%= form.text_area :content, rows: 3, class: 'w-full max-w-md text-xs' %>
-
-  <%= render 'button', label: 'Add', size: :small %>
-<% end %>
-```
-
-```
-<label-partial form%="form" name="email" class="" />
-<email-field-partial form%="form" name="email" />
-```
-
-```
-<form-with-partial data-turbo-confirm="Sure?" yields="form">
+<form-with-partial model%="widget" data-turbo-confirm="Are you sure?">
   <div>
     <label-partial name="name" />
     <text-field-partial name="name" />
   </div>
 
   <div>
-    <label-partial form%="form" name="select" />
-    <select-partial form%="form" name="select" options%="['a', 'b']" />
+    <label-partial name="size" />
+    <select-partial name="size" options%="['Big', 'Small']" />
   </div>
+
+  <submit-partial label="Create" />
 </form-with-partial>
 ```
-
+is equivalent to:
 ```
-<form-with-partial model%="@manual_booking" url%="event_manual_bookings_path(@event)" yields="form">
-  <div class="flex gap-2 flex-wrap">
-    <div>
-      <label-partial form%="form" name="name" class="mr-1" />
-      <text-field-partial form%="form" name="name" />
-    </div>
+<%= form_with model: @widget do |form| %>
+    <%= form.text_area :content, rows: 3, class: 'w-full max-w-md text-xs' %>
 
-    <div>
-      <label-partial form%="form" name="source" class="mr-1" />
-      <select-partial form%="form" name="source" options%="[['Cash', :cash], ['Free', :free]]" x-model="source" />
-    </div>
-
-    <div x-show="source === 'cash'">
-      <label-partial form%="form" name="price" class="mr-1" />
-      <number-field-partial form%="form" name="price" in%="0..100" value%="@event.price.round" class="w-24" />
-    </div>
-
-    <div>
-      <label-partial form%="form" name="guests" class="mr-1" />
-      <number-field-partial form%="form" name="guests" in%="0..9" value%="0" class="w-16" />
-    </div>
-
-    <button-partial label="Add" size="big" />
-</form-with-partial>
+<% end %>
 ```
 
 
@@ -218,8 +174,9 @@ You can use them as follows:
 
 #### `provide` and `inject`
 
-As an alternative to `yields`.
+Parent partial can indirectly pass a variable to its children via `provide` and `inject` helpers.
 
+// TODO:convert to widget
 `parent.theo`:
 ```erb
 <div>
@@ -234,6 +191,12 @@ As an alternative to `yields`.
 <span><%= inject(:variable) %></span>
 ```
 
-This technique is used in forms, to avoid passing `form` attribute.
-Use sparingly, since implicit variable can make your code less readable.
+Usage:
+```
+<parent-partial>
+  <child-partial />
+</parent-partial>
+```
 
+> [!NOTE]
+> This technique is used by form partials[LINK], to avoid passing `form` variable via [`yields` attribute](#yields). Use it sparingly, as implicit variables can reduce code readability. 

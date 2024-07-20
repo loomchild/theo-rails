@@ -13,7 +13,7 @@ Thanks to Hotwire, it's now possible to build sophisticated server-rendered user
 
 With Theo, you can render a partial using HTML-like syntax:
 ```html
-<button-partial size="small" label%="label" />
+<button-partial size="large" label%="label" />
 ```
 
 
@@ -57,7 +57,7 @@ In Theo, you render a partial by writing a tag with `-partial` suffix, for examp
 ```
 is equivalent to:
 ```erb
-<%= render "button", size: "large" %>
+<%= render 'button', size: 'large' %>
 ```
 
 Partials can also include content, e.g.:
@@ -79,24 +79,35 @@ You can render a collection of partials as follows:
 ```
 which is equivalent to:
 ```erb
-<%= render partial: 'widget', collection: @widgets %>
+<%= render partial: 'widget', collection: widgets %>
 ```
 
 You can also customize the local variable name via the `as` attribute, e.g.:
 ```html
-<widget-partial collection%="@widgets" as="item" />
+<widget-partial collection%="widgets" as="item" />
 ```
-
 
 #### Boolean attributes
 
 If an attribute has no value, you can omit it, for example:
 ```html
-<events-partial past />
+<button-partial disabled />
 ```
 is equivalent to:
 ```html
-<events-partial past="" />
+<button-partial disabled="" />
+```
+
+
+#### Path
+
+To render a partial from another folder, use the 'path' attribute, e.g.:
+```html
+<widget-partial path="widgets" />
+```
+is equivalent to:
+```erb
+<%= render 'widgets/widget' %>
 ```
 
 
@@ -104,33 +115,36 @@ is equivalent to:
 
 Partials can yield a value, such as a builder object that can be used by child partials. For example:
 ```html
-<widget-partial yields="widget">
+<widget-builder-partial yields="widget">
   <widget-element-partial widget%="widget" />
-</wrapper-partial>
+</widget-builder-partial>
 ```
 is equivalent to:
 ```erb
+<%= render 'widget_builder' do |widget| %>
+  <%= render 'widget_element', widget: %>
+<% end %>
 ```
 
 #### `provide` and `inject` helpers
 
 Instead of using `yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
 ```html
-<widget-partial>
+<widget-builder-partial>
   <widget-element-partial />
-</widget-partial>
+</widget-builder-partial>
 ```
 
-`_widget.theo`:
+`_widget_builder.html.theo`:
 ```erb
 <% provide(widget:) do %>
   <%= yield %>
 <% end %>
 ```
 
-`_widget_element.theo`:
+`_widget_element.html.theo`:
 ```erb
-<% widget = inject(:widget_name) %>
+<% widget = inject(:widget) %>
 ```
 
 > [!NOTE]
@@ -166,13 +180,22 @@ In Theo, you can use partials that correspond to the form helpers, for example:
     <select-partial name="size" options%="['Big', 'Small']" />
   </div>
 
-  <submit-partial label="Create" />
+  <submit-partial value="Create" />
 </form-with-partial>
 ```
 is equivalent to:
 ```erb
-<%= form_with model: @widget do |form| %>
-    <%= form.text_area :content, rows: 3, class: 'w-full max-w-md text-xs' %>
+<%= form_with model: widget, data: { turbo_confirm: 'Are you sure?' } do |form| %>
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
 
+  <div>
+    <%= form.label :size %>
+    <%= form.select :size, ['Big', 'Small'] %>
+  </div>
+
+  <%= form.submit "Create" %>
 <% end %>
 ```

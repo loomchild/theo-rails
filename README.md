@@ -121,15 +121,14 @@ Instead of using `yields` attribute, a parent partial can indirectly pass a vari
 </widget-partial>
 ```
 
-<h5 a><strong><code>_widget.theo</code></strong></h5>
-
+`_widget.theo`:
 ```erb
 <% provide(widget:) do %>
   <%= yield %>
 <% end %>
 ```
 
-`_widget_element.theo`
+`_widget_element.theo`:
 ```erb
 <% widget = inject(:widget_name) %>
 ```

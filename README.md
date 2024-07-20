@@ -122,6 +122,7 @@ Instead of using `yields` attribute, a parent partial can indirectly pass a vari
 ```
 
 <h5 a><strong><code>_widget.theo</code></strong></h5>
+
 ```erb
 <% provide(widget:) do %>
   <%= yield %>

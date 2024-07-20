@@ -113,7 +113,7 @@ which is equivalent to:
 <%= render 'events', { past: '' } %>
 ```
 
-#### [`yields` attribute](#yields)
+#### `yields` attribute
 
 Partials can yield a value, like a builder object that can be used by child partials.
 
@@ -139,7 +139,7 @@ ERB syntax is supported by Theo and they can be mixed freely:
 
 ## Utilities
 
-### Forms
+### Form partials
 
 You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html). This creates a confusing mix of Ruby code and HTML markup in your templates.
 
@@ -199,4 +199,4 @@ Usage:
 ```
 
 > [!NOTE]
-> This technique is used by form partials[LINK], to avoid passing `form` variable via [`yields` attribute](#yields). Use it sparingly, as implicit variables can reduce code readability. 
+> This technique is used by [form partials](#form-partials), to avoid passing `form` variable via [`yields` attribute](#yields-attribute). Use it sparingly, as implicit variables can reduce code readability. 

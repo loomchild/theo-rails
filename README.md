@@ -163,9 +163,7 @@ You can freely mix ERB and Theo syntax, e.g.:
 
 ## Forms
 
-You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html).
-
-In Theo, you can use partials that correspond to the form helpers, for example:
+You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html). Theo provides corresponding partials. For example:
 ```html
 <form-with-partial model%="widget" data-turbo-confirm="Are you sure?">
   <div>

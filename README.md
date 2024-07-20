@@ -33,9 +33,9 @@ If you are using TailwindCSS, add `.theo` extension to the `content` key in your
 
 ### Computed attributes
 
-Computing attribute value in ERB feels awkward because angle brackets `<>` collide with the surrounding HTML tag.
+Computing attribute value in ERB feels awkward because angle brackets `<>` clash with the surrounding HTML tag.
 
-In Theo, an attribute with computed value can be expressed via `%=`. For example:
+In Theo, an attribute with computed value can be expressed via `%=`, for example:
 ```html
 <a href%="root_path">Home</a>
 ```
@@ -51,7 +51,7 @@ is equivalent to:
 
 Rendering a partial in ERB requires switching your mental model from HTML to Ruby and using the `render` verb, which makes it difficult to imagine a page as a component hierarchy.
 
-In Theo, you render a partial by writing a tag with `-partial` suffix. For example:
+In Theo, you render a partial by writing a tag with `-partial` suffix, for example:
 ```html
 <button-partial size="large" />`
 ```
@@ -60,7 +60,7 @@ is equivalent to:
 <%= render "button", size: "large" %>
 ```
 
-Partials can also hold content, e.g.:
+Partials can also include content, e.g.:
 ```html
 <button-partial size="large">
   Create
@@ -68,7 +68,7 @@ Partials can also hold content, e.g.:
 ```
 
 > [!TIP]
-> Partials themselves can be implemented in ERB, Theo or any other template language.
+> Rendered partials can be implemented in ERB, Theo or any other template language.
 
 
 #### Collections
@@ -82,7 +82,7 @@ which is equivalent to:
 <%= render partial: 'widget', collection: @widgets %>
 ```
 
-You can also customize the local variable name via the as attribute, e.g.:
+You can also customize the local variable name via the `as` attribute, e.g.:
 ```html
 <widget-partial collection%="@widgets" as="item" />
 ```
@@ -90,7 +90,7 @@ You can also customize the local variable name via the as attribute, e.g.:
 
 #### Boolean attributes
 
-If an attribute has no value, you can omit it. For example:
+If an attribute has no value, you can omit it, for example:
 ```html
 <events-partial past />
 ```
@@ -112,7 +112,7 @@ is equivalent to:
 ```erb
 ```
 
-##### `provide` and `inject` helpers
+#### `provide` and `inject` helpers
 
 Instead of using `yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
 ```html
@@ -121,7 +121,7 @@ Instead of using `yields` attribute, a parent partial can indirectly pass a vari
 </widget-partial>
 ```
 
-`_widget.theo`
+<h5 a><strong><code>_widget.theo</code></strong></h5>
 ```erb
 <% provide(widget:) do %>
   <%= yield %>
@@ -153,7 +153,7 @@ You can freely mix ERB and Theo syntax, e.g.:
 
 You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html), which often results in a confusing mix of Ruby code and HTML markup in your templates.
 
-In Theo, you can use partials that correspond to the form helpers. For example:
+In Theo, you can use partials that correspond to the form helpers, for example:
 ```html
 <form-with-partial model%="widget" data-turbo-confirm="Are you sure?">
   <div>

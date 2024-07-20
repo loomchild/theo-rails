@@ -35,7 +35,7 @@ If you are using TailwindCSS, add `.theo` extension to the `content` key in your
 
 Computing attribute value in ERB feels awkward because angle brackets `<>` clash with the surrounding HTML tag.
 
-In Theo, an attribute with computed value can be expressed via `%=`, for example:
+In Theo, an attribute with computed value can be expressed using `%=`. For example:
 ```html
 <a href%="root_path">Home</a>
 ```
@@ -49,7 +49,7 @@ is equivalent to:
 
 ### Partials
 
-Rendering a partial in ERB requires switching your mental model from HTML to Ruby and using the `render` verb, which makes it difficult to imagine a page as a component hierarchy.
+Rendering a partial in ERB requires switching between HTML markup and Ruby code, and the `render` verb makes it difficult to imagine a page as a component structure.
 
 In Theo, you render a partial by writing a tag with `-partial` suffix, for example:
 ```html
@@ -60,7 +60,7 @@ is equivalent to:
 <%= render 'button', size: 'large' %>
 ```
 
-Partials can also include content, e.g.:
+Naturally, partials can also include content, e.g.:
 ```html
 <button-partial size="large">
   Create
@@ -161,11 +161,9 @@ You can freely mix ERB and Theo syntax, e.g.:
 ```
 
 
-## Utilities
+## Forms
 
-### Form partials
-
-You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html), which often results in a confusing mix of Ruby code and HTML markup in your templates.
+You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html).
 
 In Theo, you can use partials that correspond to the form helpers, for example:
 ```html

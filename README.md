@@ -12,7 +12,7 @@ Theo is a small and elegant HTML-like template language for Ruby on Rails, featu
 Thanks to Hotwire, it's now possible to build sophisticated server-rendered user interfaces in Ruby on Rails. However, ERB, Rails' most popular template language, has unintuitive partial syntax, especially for those used to working with Vue.js or React components.
 
 With Theo, you can render a partial using HTML-like syntax:
-```
+```html
 <button-partial size="small" label%="label" />
 ```
 
@@ -41,7 +41,7 @@ In Theo, an attribute with computed value can be expressed via `%=`. For example
 ```
 is equivalent to:
 ```erb
-<a href="<%= root_path%>">Home</a>
+<a href="<%= root_path %>">Home</a>
 ```
 > [!TIP]  
 > Computed attributes work with partials as well as standard HTML tags.
@@ -67,7 +67,7 @@ is equivalent to:
 ```
 
 Partials can also hold content, e.g.:
-```
+```html
 <button-partial size="large">
   Create
 </button-partial>
@@ -80,16 +80,16 @@ Partials can also hold content, e.g.:
 #### Collections
 
 You can render a collection of partials as follows:
-```
+```html
 <widget-partial collection%="widgets" />
 ```
 which is equivalent to:
-```
+```erb
 <%= render partial: 'widget', collection: @widgets %>
 ```
 
 You can also specify a custom local variable name via `as` attribute, e.g.:
-```
+```html
 <widget-partial collection%="@widgets" as="item" />
 ```
 
@@ -99,15 +99,15 @@ You can also specify a custom local variable name via `as` attribute, e.g.:
 If an attribute has no value, you can skip it, and only specify its name.
 
 For example:
-```
+```html
 <events-partial past />
 ```
 is equivalent to:
-```
+```html
 <events-partial past="" />
 ```
 which is equivalent to:
-```
+```erb
 <%= render 'events', { past: '' } %>
 ```
 
@@ -116,20 +116,20 @@ which is equivalent to:
 Partials can yield a value, like a builder object that can be used by child partials.
 
 For example:
-```
+```html
 <widget-partial yields="widget">
   <widget-part-partial widget%="widget" />
 </wrapper-partial>
 ```
 is equivalent to:
-```
+```erb
 ```
 
 
 ### ERB backwards compatibility
 
 ERB syntax is supported by Theo and they can be mixed freely:
-```
+```erb
 <% if total_amount > 100 %>
   <free-shipping-partial amount%="total_amount" />
 <% end %>
@@ -144,7 +144,7 @@ You can build a `<form>` element in ERB using [ActionView form helpers](https://
 In Theo, you can use partials that correspond to the form helpers instead.
 
 For example:
-```
+```html
 <form-with-partial model%="widget" data-turbo-confirm="Are you sure?">
   <div>
     <label-partial name="name" />
@@ -160,7 +160,7 @@ For example:
 </form-with-partial>
 ```
 is equivalent to:
-```
+```erb
 <%= form_with model: @widget do |form| %>
     <%= form.text_area :content, rows: 3, class: 'w-full max-w-md text-xs' %>
 
@@ -185,12 +185,12 @@ Parent partial can indirectly pass a variable to its children via `provide` and 
 ```
 
 `child.theo`:
-```
+```erb
 <span><%= inject(:variable) %></span>
 ```
 
 Usage:
-```
+```html
 <parent-partial>
   <child-partial />
 </parent-partial>

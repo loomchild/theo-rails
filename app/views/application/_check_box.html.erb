@@ -1,0 +1,4 @@
+<%# locals: (form: nil, name:, **attributes) -%>
+<% form ||= inject(:form) %>
+
+<%= form.check_box name, **attributes %>

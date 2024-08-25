@@ -195,3 +195,26 @@ is equivalent to:
   <%= form.submit "Create" %>
 <% end %>
 ```
+
+## ViewComponent compatibility
+
+Theo is compatible with [ViewComponent](https://viewcomponent.org/). For example the following component:
+
+```
+class ExampleComponent < ViewComponent::Base
+  theo_template <<-THEO
+    <span title%="@title"><%= content %></span>
+  THEO
+
+  def initialize(title:)
+    @title = title
+  end
+end
+```
+can be rendered as usual from Theo template:
+```
+<%= render(ExampleComponent.new(title: "my title")) do %>
+  Hello, World!
+<% end %>
+```
+(It will be simplifid soon, e.g. via <example-component title="my title" />)

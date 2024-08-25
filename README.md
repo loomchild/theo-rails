@@ -198,7 +198,7 @@ is equivalent to:
 
 ## ViewComponent compatibility
 
-Theo is compatible with [ViewComponent](https://viewcomponent.org/). For example the following component:
+Theo is compatible with [ViewComponent](https://viewcomponent.org/). For here's a component using Theo template syntax:
 
 ```
 class ExampleComponent < ViewComponent::Base
@@ -211,7 +211,7 @@ class ExampleComponent < ViewComponent::Base
   end
 end
 ```
-can be rendered as usual from Theo template:
+It can be rendered as usual from Theo template:
 ```
 <%= render(ExampleComponent.new(title: "my title")) do %>
   Hello, World!

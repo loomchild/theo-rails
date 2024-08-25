@@ -5,6 +5,7 @@ module Theo
     ATTRIBUTE = /(?:(?:(?<name>#{ATTRIBUTE_NAME.source})\s*=\s*#{ATTRIBUTE_VALUE.source})|(?<name>#{ATTRIBUTE_NAME.source}))/
     DYNAMIC_ATTRIBUTE = /(?:(?<name>#{ATTRIBUTE_NAME.source})\s*%=\s*#{ATTRIBUTE_VALUE.source})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
+    LITERAL_ATTRIBUTES = %i[path as yields].freeze
     PARTIAL_TAG = /(?<partial>[\w-]+-partial)/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/im
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
@@ -21,18 +22,13 @@ module Theo
           attributes = match[:attrs] || ''
           content = match[:content]&.strip
 
-          attributes =
-            attributes
-            .gsub(ATTRIBUTE)
-            .map { Regexp.last_match }
-            .map { |attr| [attr[:name].to_sym, attr[:value] || ''] }
-            .to_h
+          attributes = process_attributes(attributes)
 
           partial = "#{attributes.delete(:path)}/#{partial}" if attributes[:path]
 
           collection = ''
           if attributes[:collection]
-            collection = attribute(attributes.delete(:collection))
+            collection = attributes.delete(:collection)
 
             as = ''
             if attributes[:as]
@@ -44,8 +40,6 @@ module Theo
 
           yields = "|#{attributes.delete(:yields)}|" if attributes[:yields]
 
-          attributes.transform_values! { |value| attribute(value) }
-
           if content
             output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{yields || ''} %>#{process(content)}<% end %>"
           else
@@ -54,6 +48,20 @@ module Theo
 
           output
         end
+      end
+
+      def process_attributes(attributes)
+        attributes
+          .gsub(ATTRIBUTE)
+          .map { Regexp.last_match }
+          .map do |attr|
+            name = attr[:name].to_sym
+            value = attr[:value]
+            value = attribute(value) if LITERAL_ATTRIBUTES.exclude?(name)
+            p name, value
+            [name, value]
+          end
+          .to_h
       end
 
       def attribute(source)

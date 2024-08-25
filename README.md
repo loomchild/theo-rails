@@ -211,10 +211,10 @@ class ExampleComponent < ViewComponent::Base
   end
 end
 ```
-It can be rendered as usual from Theo template:
+It can be rendered as usual from another Theo template:
 ```
 <%= render(ExampleComponent.new(title: "my title")) do %>
   Hello, World!
 <% end %>
 ```
-(It will be simplifid soon, e.g. via <example-component title="my title" />)
+(It will be simplifid soon, e.g. via `<example-component title="my title" />`)

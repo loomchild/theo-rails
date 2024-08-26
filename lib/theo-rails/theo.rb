@@ -58,7 +58,6 @@ module Theo
             name = attr[:name].to_sym
             value = attr[:value]
             value = attribute(value) if LITERAL_ATTRIBUTES.exclude?(name)
-            p name, value
             [name, value]
           end
           .to_h

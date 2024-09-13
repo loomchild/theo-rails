@@ -13,7 +13,7 @@ Thanks to Hotwire, it's now possible to build sophisticated server-rendered user
 
 With Theo, you can render a partial using HTML-like syntax:
 ```html
-<button-partial size="large" label%="label" />
+<_button size="large" label%="label" />
 ```
 
 
@@ -51,9 +51,9 @@ is equivalent to:
 
 Rendering a partial in ERB requires switching between HTML markup and Ruby code, and the `render` verb makes it difficult to imagine a page as a component structure.
 
-In Theo, you render a partial by writing a tag with `-partial` suffix, for example:
+In Theo, you render a partial by writing a tag with `_` prefix, for example:
 ```html
-<button-partial size="large" />`
+<_button size="large" />`
 ```
 is equivalent to:
 ```erb
@@ -62,9 +62,9 @@ is equivalent to:
 
 Naturally, partials can also include content, e.g.:
 ```html
-<button-partial size="large">
+<_button size="large">
   Create
-</button-partial>
+</_button>
 ```
 
 > [!TIP]
@@ -75,7 +75,7 @@ Naturally, partials can also include content, e.g.:
 
 You can render a collection of partials as follows:
 ```html
-<widget-partial collection%="widgets" />
+<_widget collection%="widgets" />
 ```
 which is equivalent to:
 ```erb
@@ -84,18 +84,18 @@ which is equivalent to:
 
 You can also customize the local variable name via the `as` attribute, e.g.:
 ```html
-<widget-partial collection%="widgets" as="item" />
+<_widget collection%="widgets" as="item" />
 ```
 
 #### Boolean attributes
 
 If an attribute has no value, you can omit it, for example:
 ```html
-<button-partial disabled />
+<_button disabled />
 ```
 is equivalent to:
 ```html
-<button-partial disabled="" />
+<_button disabled="" />
 ```
 
 
@@ -103,7 +103,7 @@ is equivalent to:
 
 To render a partial from another folder, use the 'path' attribute, e.g.:
 ```html
-<widget-partial path="widgets" />
+<_widget path="widgets" />
 ```
 is equivalent to:
 ```erb
@@ -115,9 +115,9 @@ is equivalent to:
 
 Partials can yield a value, such as a builder object that can be used by child partials. For example:
 ```html
-<widget-builder-partial yields="widget">
-  <widget-element-partial widget%="widget" />
-</widget-builder-partial>
+<_widget_builder yields="widget">
+  <_widget_element widget%="widget" />
+</_widget_builder>
 ```
 is equivalent to:
 ```erb
@@ -130,9 +130,9 @@ is equivalent to:
 
 Instead of using `yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
 ```html
-<widget-builder-partial>
-  <widget-element-partial />
-</widget-builder-partial>
+<_widget_builder>
+  <_widget_element />
+</_widget_builder>
 ```
 
 `_widget_builder.html.theo`:
@@ -156,7 +156,7 @@ Instead of using `yields` attribute, a parent partial can indirectly pass a vari
 You can freely mix ERB and Theo syntax, e.g.:
 ```erb
 <% if total_amount > 100 %>
-  <free-shipping-partial amount%="total_amount" />
+  <_free_shipping amount%="total_amount" />
 <% end %>
 ```
 
@@ -165,19 +165,19 @@ You can freely mix ERB and Theo syntax, e.g.:
 
 You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html). Theo provides corresponding partials. For example:
 ```html
-<form-with-partial model%="widget" data-turbo-confirm="Are you sure?">
+<_form_with model%="widget" data-turbo-confirm="Are you sure?">
   <div>
-    <label-partial name="name" />
-    <text-field-partial name="name" />
+    <_label name="name" />
+    <_text_field name="name" />
   </div>
 
   <div>
-    <label-partial name="size" />
-    <select-partial name="size" options%="['Big', 'Small']" />
+    <_label name="size" />
+    <_select name="size" options%="['Big', 'Small']" />
   </div>
 
-  <submit-partial value="Create" />
-</form-with-partial>
+  <_submit value="Create" />
+</_form_with>
 ```
 is equivalent to:
 ```erb

@@ -6,7 +6,7 @@ module Theo
     DYNAMIC_ATTRIBUTE = /(?:(?<name>#{ATTRIBUTE_NAME.source})\s*%=\s*#{ATTRIBUTE_VALUE.source})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     LITERAL_ATTRIBUTES = %i[path as yields].freeze
-    PARTIAL_TAG = /(?<partial>_[\w-]+)/
+    PARTIAL_TAG = /(?<partial>_\w+)/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/im
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
 

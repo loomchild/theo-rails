@@ -75,7 +75,7 @@ Naturally, partials can also include content, e.g.:
 
 You can render a collection of partials as follows:
 ```html
-<_widget collection%="widgets" />
+<_widget collection="widgets" />
 ```
 which is equivalent to:
 ```erb
@@ -84,7 +84,7 @@ which is equivalent to:
 
 You can also customize the local variable name via the `as` attribute, e.g.:
 ```html
-<_widget collection%="widgets" as="item" />
+<_widget collection="widgets" as="item" />
 ```
 
 #### Boolean attributes

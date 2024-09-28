@@ -20,7 +20,7 @@ module Theo
           match = Regexp.last_match
           partial = (match[:partial]).delete_prefix('_')
           attributes = match[:attrs] || ''
-          content = match[:content]&.strip
+          content = match[:content]
 
           attributes = process_attributes(attributes)
 
@@ -38,12 +38,16 @@ module Theo
             collection = ", collection: #{collection}#{as}"
           end
 
-          yields = "|#{attributes.delete(:yields)}|" if attributes[:yields]
+          yields = " |#{attributes.delete(:yields)}|" if attributes[:yields]
+
+          locals = attributes.empty? ? '' : "{#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}}"
 
           if content
-            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{yields || ''}%>#{process(content)}<% end %>"
+            locals = ", #{locals}" unless locals.empty?
+            output = "<%= render '#{partial}'#{locals} do#{yields || ''} %>#{process(content)}<% end %>"
           else
-            output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} %>"
+            locals = ", locals: #{locals}" unless locals.empty?
+            output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
           end
 
           output

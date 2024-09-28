@@ -41,7 +41,7 @@ module Theo
           yields = "|#{attributes.delete(:yields)}|" if attributes[:yields]
 
           if content
-            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{yields || ''} %>#{process(content)}<% end %>"
+            output = "<%= render '#{partial}', {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} do #{yields || ''}%>#{process(content)}<% end %>"
           else
             output = "<%= render partial: '#{partial}'#{collection}, locals: {#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}} %>"
           end

@@ -31,5 +31,9 @@ RSpec.describe Theo::Rails::Theo do
     include_examples 'theo to erb', 'evaluates self-closing partial with dynamic attribute',
                      %(<_partial attr1%="1 + 1"/>),
                      %(<%= render partial: 'partial', locals: {'attr1': 1 + 1} %>)
+
+    include_examples 'theo to erb', 'evaluates simple partial with content',
+                     %(<_partial>Content <span>text</span></_partial>),
+                     %(<%= render 'partial', {} do %>Content <span>text</span><% end %>)
   end
 end

@@ -5,9 +5,12 @@ module Theo
     ATTRIBUTE = /(?:(?:(?<name>#{ATTRIBUTE_NAME.source})\s*=\s*#{ATTRIBUTE_VALUE.source})|(?<name>#{ATTRIBUTE_NAME.source}))/
     DYNAMIC_ATTRIBUTE = /(?:(?<name>#{ATTRIBUTE_NAME.source})\s*%=\s*#{ATTRIBUTE_VALUE.source})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
-    LITERAL_ATTRIBUTES = %i[path as yields].freeze
+    LITERAL_ATTRIBUTES = %i[path as yields collection].freeze
     PARTIAL_TAG = /(?<partial>_\w+)/
-    PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/im
+    PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/
+    COMPONENT_TAG = /(?<component>[A-Z]\w+)/
+    COMPONENT = /(?:<#{COMPONENT_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<component>>)|(?:<#{COMPONENT_TAG.source}#{ATTRIBUTES.source}\s*\/>)/
+    TEMPLATE = /(?:#{PARTIAL.source})|(?:#{COMPONENT.source})/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
 
     class Theo
@@ -16,38 +19,53 @@ module Theo
         source = source.gsub(DYNAMIC_ATTRIBUTE, '\k<name>="<%= \k<value> %>"')
 
         # Partials
-        source.gsub(PARTIAL) do |_|
+        source.gsub(TEMPLATE) do |_|
           match = Regexp.last_match
-          partial = (match[:partial]).delete_prefix('_')
+
+          partial = match[:partial]
+          component = match[:component]
+
           attributes = match[:attrs] || ''
           content = match[:content]
 
           attributes = process_attributes(attributes)
 
-          partial = "#{attributes.delete(:path)}/#{partial}" if attributes[:path]
+          path = attributes.delete(:path)
 
-          collection = ''
-          if attributes[:collection]
-            collection = attributes.delete(:collection)
+          collection = attributes.delete(:collection)
+          as = attributes.delete(:as)
 
-            as = ''
-            if attributes[:as]
-              as = attributes.delete(:as)
-              as = ", as: '#{as}'"
+          yields = attributes.delete(:yields)
+          yields = " |#{yields}|" if yields
+
+          locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')
+
+          if partial
+            partial = partial.delete_prefix('_')
+
+            partial = "#{path}/#{partial}" if path
+
+            as = as ? ", as: '#{as}'" : ''
+            collection = ", collection: #{collection}#{as}" if collection
+
+            if content
+              locals = ", {#{locals}}" unless locals.empty?
+              output = "<%= render '#{partial}'#{locals} do#{yields} %>#{process(content)}<% end %>"
+            else
+              locals = ", locals: {#{locals}}" unless locals.empty?
+              output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
             end
-            collection = ", collection: #{collection}#{as}"
-          end
-
-          yields = " |#{attributes.delete(:yields)}|" if attributes[:yields]
-
-          locals = attributes.empty? ? '' : "{#{attributes.map {|k,v| "'#{k}': #{v}"}.join(', ')}}"
-
-          if content
-            locals = ", #{locals}" unless locals.empty?
-            output = "<%= render '#{partial}'#{locals} do#{yields || ''} %>#{process(content)}<% end %>"
           else
-            locals = ", locals: #{locals}" unless locals.empty?
-            output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
+            component = "#{component}Component"
+
+            if content
+              output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
+            elsif collection
+              locals = ", #{locals}" unless locals.empty?
+              output = "<%= render #{component}.with_collection(#{collection}#{locals}) %>"
+            else
+              output = "<%= render #{component}.new(#{locals}) %>"
+            end
           end
 
           output

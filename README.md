@@ -211,10 +211,35 @@ class ExampleComponent < ViewComponent::Base
   end
 end
 ```
-It can be rendered as usual from another Theo template:
+
+Component can be rendered from Theo template as follows:
+```html
+<Button size="large" />
 ```
-<%= render(ExampleComponent.new(title: "my title")) do %>
-  Hello, World!
-<% end %>
+which is equivalent to:
+```erb
+<%= render(ButtonComponent.new(size: "large")) %>
 ```
-(It will be simplifid soon, e.g. via `<example-component title="my title" />`)
+
+Components can also include content:
+```html
+<Button size="large">
+  Create
+</Button>
+```
+and yield a value:
+```
+<Button size="large" yields="component">
+  <% component.with_header do %>Icon<% end %>
+  Create
+</Button>
+```
+
+You can also render a component collection as follows:
+```html
+<Widget collection="widgets" />
+```
+which is equivalent to:
+```erb
+<%= render WidgetComponent.with_collection(widgets) %>
+```

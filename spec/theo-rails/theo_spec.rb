@@ -65,11 +65,11 @@ RSpec.describe Theo::Rails::Theo do
     context 'partial collection' do
       include_examples 'theo to erb', 'evaluates partial collection',
                        %(<_partial collection="items" />),
-                       %(<%= render partial: 'partial', collection: 'items' %>)
+                       %(<%= render partial: 'partial', collection: items %>)
 
       include_examples 'theo to erb', 'evaluates partial collection with custom variable',
                        %(<_partial collection="items" as="element" />),
-                       %(<%= render partial: 'partial', collection: 'items', as: 'element' %>)
+                       %(<%= render partial: 'partial', collection: items, as: 'element' %>)
     end
 
     context 'partial boolean attribute' do
@@ -82,6 +82,46 @@ RSpec.describe Theo::Rails::Theo do
       include_examples 'theo to erb', 'evaluates partial',
                        %(<_partial path="partials" />),
                        %(<%= render partial: 'partials/partial' %>)
+    end
+  end
+
+  context 'component' do
+    context 'self-closing component' do
+      include_examples 'theo to erb', 'evaluates simple component',
+                       %(<Widget />),
+                       %(<%= render WidgetComponent.new() %>)
+
+      include_examples 'theo to erb', 'evaluates component with attributes',
+                       %(<Widget attr1="value1" attr2="value2"/>),
+                       %(<%= render WidgetComponent.new('attr1': 'value1', 'attr2': 'value2') %>)
+
+      include_examples 'theo to erb', 'evaluates component with dynamic attribute',
+                       %(<Widget attr1%="1 + 1"/>),
+                       %(<%= render WidgetComponent.new('attr1': 1 + 1) %>)
+    end
+
+    context 'component with content block' do
+      include_examples 'theo to erb', 'evaluates simple component',
+                       %(<Widget>Content <span>text</span></Widget>),
+                       %(<%= render WidgetComponent.new() do %>Content <span>text</span><% end %>)
+
+      include_examples 'theo to erb', 'evaluates component with attributes',
+                       %(<Widget attr1="value1" attr2="value2">Content <span>text</span></Widget>),
+                       %(<%= render WidgetComponent.new('attr1': 'value1', 'attr2': 'value2') do %>Content <span>text</span><% end %>)
+
+      include_examples 'theo to erb', 'evaluates partial with yields attribute',
+                       %(<Widget yields="component">Content <span>text</span></Widget>),
+                       %(<%= render WidgetComponent.new() do |component| %>Content <span>text</span><% end %>)
+    end
+
+    context 'component collection' do
+      include_examples 'theo to erb', 'evaluates partial collection',
+                       %(<Widget collection="widgets" />),
+                       %(<%= render WidgetComponent.with_collection(widgets) %>)
+
+      include_examples 'theo to erb', 'evaluates partial collection with attributes',
+                       %(<Widget collection="widgets" attr1="value1" attr2="value2" />),
+                       %(<%= render WidgetComponent.with_collection(widgets, 'attr1': 'value1', 'attr2': 'value2') %>)
     end
   end
 

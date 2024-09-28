@@ -15,3 +15,6 @@ Style/EmptyMethod:
 
 Lint/UnusedMethodArgument:
   AllowUnusedKeywordArguments: true
+
+Layout/LineLength:
+  Max: 140

@@ -13,7 +13,7 @@ module Theo
     class Theo
       def process(source)
         # Attributes
-        source = source.gsub(DYNAMIC_ATTRIBUTE, '\k<name>="<%=\k<value>%>"')
+        source = source.gsub(DYNAMIC_ATTRIBUTE, '\k<name>="<%= \k<value> %>"')
 
         # Partials
         source.gsub(PARTIAL) do |_|
@@ -57,7 +57,7 @@ module Theo
           .map do |attr|
             name = attr[:name].to_sym
             value = attr[:value]
-            value = attribute(value) if LITERAL_ATTRIBUTES.exclude?(name)
+            value = attribute(value) unless LITERAL_ATTRIBUTES.include?(name)
             [name, value]
           end
           .to_h
@@ -67,7 +67,7 @@ module Theo
         # TODO: support attributes like "a<%= b %>c
 
         match = DYNAMIC_EXPRESSION.match(source)
-        return match[1] if match
+        return match[1].strip if match
 
         "'#{source}'"
       end

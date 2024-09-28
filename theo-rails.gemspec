@@ -13,4 +13,5 @@ Gem::Specification.new do |spec|
     "source_code_uri" => "https://github.com/loomchild/theo-rails"
   }
   spec.required_ruby_version = ">= 3.2"
+  spec.add_development_dependency "rspec"
 end

@@ -196,23 +196,25 @@ is equivalent to:
 <% end %>
 ```
 
-## ViewComponent compatibility
+## ViewComponents
 
-Theo is compatible with [ViewComponent](https://viewcomponent.org/). For here's a component using Theo template syntax:
+Theo is compatible with [ViewComponent](https://viewcomponent.org/) framework.
+
+Here's a component using Theo template syntax:
 
 ```
-class ExampleComponent < ViewComponent::Base
+class ButtonComponent < ViewComponent::Base
   theo_template <<-THEO
-    <span title%="@title"><%= content %></span>
+    <span class%="@size"><%= content %></span>
   THEO
 
-  def initialize(title:)
-    @title = title
+  def initialize(size:)
+    @size = size
   end
 end
 ```
 
-Component can be rendered from Theo template as follows:
+Component can be rendered from Theo template using the following syntax:
 ```html
 <Button size="large" />
 ```

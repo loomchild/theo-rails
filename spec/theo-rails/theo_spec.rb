@@ -17,6 +17,18 @@ RSpec.describe Theo::Rails::Theo do
     include_examples 'theo to erb', 'evaluates dynamic attribute',
                      %(<a href%="2 % 2 == 0 ? '/even' : '/odd'">Link</a>),
                      %(<a href="<%= 2 % 2 == 0 ? '/even' : '/odd' %>">Link</a>)
+
+    include_examples 'theo to erb', 'evaluates shortened dynamic attribute',
+                     %(<a href%>Link</a>),
+                     %(<a href="<%= href %>">Link</a>)
+
+    include_examples 'theo to erb', 'evaluates shortened reserved dynamic attribute',
+                     %(<div class%>Content</div>),
+                     %(<div class="<%= binding.local_variable_get('class') %>">Content</div>)
+
+    include_examples 'theo to erb', 'ignores trim symbols',
+                     %(<%- variable -%>),
+                     %(<%- variable -%>)
   end
 
   context 'partial' do

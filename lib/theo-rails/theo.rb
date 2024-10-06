@@ -1,9 +1,10 @@
 module Theo
   module Rails
-    ATTRIBUTE_NAME = /[\w\-:@]+/
+    ATTRIBUTE_NAME = /(?<name>[a-z][\w\-:@]*)/
     ATTRIBUTE_VALUE = /(?:(?:"(?<value>[^"]*)")|(?:'(?<value>[^']*)'))/
-    ATTRIBUTE = /(?:(?:(?<name>#{ATTRIBUTE_NAME.source})\s*=\s*#{ATTRIBUTE_VALUE.source})|(?<name>#{ATTRIBUTE_NAME.source}))/
-    DYNAMIC_ATTRIBUTE = /(?:(?<name>#{ATTRIBUTE_NAME.source})\s*%=\s*#{ATTRIBUTE_VALUE.source})/
+    ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{ATTRIBUTE_VALUE.source})|#{ATTRIBUTE_NAME.source})/
+    DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{ATTRIBUTE_VALUE.source})|(?:#{ATTRIBUTE_NAME.source}%))/
+    RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     LITERAL_ATTRIBUTES = %i[path as yields collection].freeze
     PARTIAL_TAG = /(?<partial>_\w+)/
@@ -16,7 +17,16 @@ module Theo
     class Theo
       def process(source)
         # Attributes
-        source = source.gsub(DYNAMIC_ATTRIBUTE, '\k<name>="<%= \k<value> %>"')
+        source = source.gsub(DYNAMIC_ATTRIBUTE) do |_|
+          match = Regexp.last_match
+
+          name = match[:name]
+
+          # See https://island94.org/2024/06/rails-strict-locals-local_assigns-and-reserved-keywords for more info
+          value = match[:value] || (RESERVED_ATTRIBUTE_NAME.include?(name) ? "binding.local_variable_get('#{name}')" : name)
+
+          "#{name}=\"<%= #{value} %>\""
+        end
 
         # Partials
         source.gsub(TEMPLATE) do |_|

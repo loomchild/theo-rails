@@ -46,6 +46,34 @@ is equivalent to:
 > [!TIP]  
 > Computed attributes work with partials as well as standard HTML tags.
 
+#### Short form
+
+If value of a dynamic attribute is the same as its name, you can omit the value.
+
+For example
+```html
+<div style%>Text</div>
+```
+is equivalent to:
+```erb
+<div style%="style">Text</div>
+```
+which in turn is equivalent to:
+```erb
+<div style="<%= style %>">Text</div>
+```
+
+Since `class` is a Ruby keyword, it's treated specially:
+```html
+<div class%>Text</div>
+```
+is equivalent to:
+```erb
+<div class="<%= binding.local_variable_get('class') %>">Text</div>
+```
+
+> [!TIP]
+> Short form is especially useful when you want to apply a `class` and `style` attribute to a partial root.
 
 ### Partials
 

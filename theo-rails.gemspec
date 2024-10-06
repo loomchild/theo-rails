@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name        = "theo-rails"
-  spec.version     = "0.3.0"
+  spec.version     = "0.3.1"
   spec.summary     = "Theo is HTML-like template language"
   spec.description = "HTML-like template language for Rails with natural partial syntax"
   spec.authors     = ["Jarek Lipski"]
@@ -13,5 +13,5 @@ Gem::Specification.new do |spec|
     "source_code_uri" => "https://github.com/loomchild/theo-rails"
   }
   spec.required_ruby_version = ">= 3.2"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rspec", "~> 3"
 end

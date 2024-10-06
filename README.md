@@ -34,7 +34,7 @@ If you are using TailwindCSS, add `.theo` extension to the `content` key in your
 ### Try
 
 Create a new view named 'hello.html.theo` (note the `.theo` suffix), with the following content:
-```
+```html
 <span style%="'background-color: ' + 'yellow'">Hello from Theo!</span>
 ```
 

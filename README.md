@@ -23,7 +23,7 @@ With Theo, you can render a partial using HTML-like syntax:
 
 Run
 
-    gem install theo-rails
+    bundle add theo-rails
 
 ### Configure
 

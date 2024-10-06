@@ -19,17 +19,26 @@ With Theo, you can render a partial using HTML-like syntax:
 
 ## Getting started
 
-### Installation
+### Install
 
 Run
 
     gem install theo-rails
 
-### Configuration
+### Configure
 
 If you are using TailwindCSS, add `.theo` extension to the `content` key in your `tailwind.config.js`:
 
     './app/views/**/*.{erb,haml,html,slim,theo}'
+
+### Try
+
+Create a new view named 'hello.html.theo` (note the `.theo` suffix), with the following content:
+```
+<span style%="'background-color: ' + 'yellow'">Hello from Theo!</span>
+```
+
+Visit the URL corresponding to this view and you should see a highlighed text.
 
 
 ## Syntax

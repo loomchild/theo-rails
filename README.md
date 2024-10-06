@@ -17,11 +17,15 @@ With Theo, you can render a partial using HTML-like syntax:
 ```
 
 
-## Installation
+## Getting started
+
+### Installation
 
 Run
 
     gem install theo-rails
+
+### Configuration
 
 If you are using TailwindCSS, add `.theo` extension to the `content` key in your `tailwind.config.js`:
 
@@ -81,7 +85,7 @@ Rendering a partial in ERB requires switching between HTML markup and Ruby code,
 
 In Theo, you render a partial by writing a tag with `_` prefix, for example:
 ```html
-<_button size="large" />`
+<_button size="large" />
 ```
 is equivalent to:
 ```erb
@@ -258,7 +262,7 @@ Components can also include content:
 </Button>
 ```
 and yield a value:
-```
+```html
 <Button size="large" yields="component">
   <% component.with_header do %>Icon<% end %>
   Create

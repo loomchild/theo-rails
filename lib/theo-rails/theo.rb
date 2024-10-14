@@ -7,11 +7,8 @@ module Theo
     RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     LITERAL_ATTRIBUTES = %i[path as yields collection].freeze
-    PARTIAL_TAG = /(?<partial>_\w+)/
-    PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/
-    COMPONENT_TAG = /(?<component>[A-Z]\w+)/
-    COMPONENT = /(?:<#{COMPONENT_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<component>>)|(?:<#{COMPONENT_TAG.source}#{ATTRIBUTES.source}\s*\/>)/
-    TEMPLATE = /(?:#{PARTIAL.source})|(?:#{COMPONENT.source})/m
+    PARTIAL_TAG = /(?<partial>[A-Z]\w+)/
+    PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
 
     class Theo
@@ -29,11 +26,10 @@ module Theo
         end
 
         # Partials
-        source.gsub(TEMPLATE) do |_|
+        source.gsub(PARTIAL) do |_|
           match = Regexp.last_match
 
           partial = match[:partial]
-          component = match[:component]
 
           attributes = match[:attrs] || ''
           content = match[:content]
@@ -50,8 +46,11 @@ module Theo
 
           locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')
 
-          if partial
-            partial = partial.delete_prefix('_')
+          is_component = view_component_exists?(partial)
+          is_partial = !is_component
+
+          if is_partial
+            partial = partial.underscore
 
             partial = "#{path}/#{partial}" if path
 
@@ -66,7 +65,7 @@ module Theo
               output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
             end
           else
-            component = "#{component}Component"
+            component = "#{partial}Component"
 
             if content
               output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
@@ -102,6 +101,14 @@ module Theo
         return match[1].strip if match
 
         "'#{source}'"
+      end
+
+      def view_component_loaded?
+        @view_component_loaded ||= Object.const_defined?('ViewComponent')
+      end
+
+      def view_component_exists?(component)
+        view_component_loaded? && Object.const_defined?("#{component}Component")
       end
 
       def call(template, source = nil)

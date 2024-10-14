@@ -13,7 +13,7 @@ Thanks to Hotwire, it's now possible to build sophisticated server-rendered user
 
 With Theo, you can render a partial using HTML-like syntax:
 ```html
-<_button size="large" label%="label" />
+<Button size="large" label%="label" />
 ```
 
 
@@ -92,9 +92,9 @@ is equivalent to:
 
 Rendering a partial in ERB requires switching between HTML markup and Ruby code, and the `render` verb makes it difficult to imagine a page as a component structure.
 
-In Theo, you render a partial by writing a tag with `_` prefix, for example:
+In Theo, you render a partial by writing a tag using PascalCase, for example:
 ```html
-<_button size="large" />
+<Button size="large" />
 ```
 is equivalent to:
 ```erb
@@ -103,9 +103,9 @@ is equivalent to:
 
 Naturally, partials can also include content, e.g.:
 ```html
-<_button size="large">
+<Button size="large">
   Create
-</_button>
+</Button>
 ```
 
 > [!TIP]
@@ -116,7 +116,7 @@ Naturally, partials can also include content, e.g.:
 
 You can render a collection of partials as follows:
 ```html
-<_widget collection="widgets" />
+<Widget collection="widgets" />
 ```
 which is equivalent to:
 ```erb
@@ -125,18 +125,18 @@ which is equivalent to:
 
 You can also customize the local variable name via the `as` attribute, e.g.:
 ```html
-<_widget collection="widgets" as="item" />
+<Widget collection="widgets" as="item" />
 ```
 
 #### Boolean attributes
 
 If an attribute has no value, you can omit it, for example:
 ```html
-<_button disabled />
+<Button disabled />
 ```
 is equivalent to:
 ```html
-<_button disabled="" />
+<Button disabled="" />
 ```
 
 
@@ -144,7 +144,7 @@ is equivalent to:
 
 To render a partial from another folder, use the 'path' attribute, e.g.:
 ```html
-<_widget path="widgets" />
+<Widget path="widgets" />
 ```
 is equivalent to:
 ```erb
@@ -156,9 +156,9 @@ is equivalent to:
 
 Partials can yield a value, such as a builder object that can be used by child partials. For example:
 ```html
-<_widget_builder yields="widget">
-  <_widget_element widget%="widget" />
-</_widget_builder>
+<WidgetBuilder yields="widget">
+  <WidgetElement widget%="widget" />
+</WidgetBuilder>
 ```
 is equivalent to:
 ```erb
@@ -171,9 +171,9 @@ is equivalent to:
 
 Instead of using `yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
 ```html
-<_widget_builder>
-  <_widget_element />
-</_widget_builder>
+<WidgetBuilder>
+  <WidgetElement />
+</WidgetBuilder>
 ```
 
 `_widget_builder.html.theo`:
@@ -197,7 +197,7 @@ Instead of using `yields` attribute, a parent partial can indirectly pass a vari
 You can freely mix ERB and Theo syntax, e.g.:
 ```erb
 <% if total_amount > 100 %>
-  <_free_shipping amount%="total_amount" />
+  <FreeShipping amount%="total_amount" />
 <% end %>
 ```
 
@@ -206,19 +206,19 @@ You can freely mix ERB and Theo syntax, e.g.:
 
 You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html). Theo provides corresponding partials. For example:
 ```html
-<_form_with model%="widget" data-turbo-confirm="Are you sure?">
+<FormWith model%="widget" data-turbo-confirm="Are you sure?">
   <div>
-    <_label name="name" />
-    <_text_field name="name" />
+    <Label name="name" />
+    <TextField name="name" />
   </div>
 
   <div>
-    <_label name="size" />
-    <_select name="size" options%="['Big', 'Small']" />
+    <Label name="size" />
+    <Select name="size" options%="['Big', 'Small']" />
   </div>
 
-  <_submit value="Create" />
-</_form_with>
+  <Submit value="Create" />
+</FormWith>
 ```
 is equivalent to:
 ```erb
@@ -255,22 +255,16 @@ class ButtonComponent < ViewComponent::Base
 end
 ```
 
-Component can be rendered from Theo template using the following syntax:
+If a components exists, Theo automatically renders it instead of a partial. Therefore:
 ```html
 <Button size="large" />
 ```
-which is equivalent to:
+is equivalent to:
 ```erb
 <%= render(ButtonComponent.new(size: "large")) %>
 ```
 
-Components can also include content:
-```html
-<Button size="large">
-  Create
-</Button>
-```
-and yield a value:
+Components can yield a value:
 ```html
 <Button size="large" yields="component">
   <% component.with_header do %>Icon<% end %>

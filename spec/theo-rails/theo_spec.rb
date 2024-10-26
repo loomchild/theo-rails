@@ -51,6 +51,10 @@ RSpec.describe Theo::Rails::Theo do
       include_examples 'theo to erb', 'evaluates partial with dynamic attribute',
                        %(<_partial attr1%="1 + 1"/>),
                        %(<%= render partial: 'partial', locals: {'attr1': 1 + 1} %>)
+
+      include_examples 'theo to erb', 'evaluates partial with attribute starting with funny character, like : or @',
+                       %(<_partial :attr="val" @click="onClick"/>),
+                       %(<%= render partial: 'partial', locals: {':attr': 'val', '@click': 'onClick'} %>)
     end
 
     context 'partial with content block' do

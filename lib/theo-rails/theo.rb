@@ -1,6 +1,6 @@
 module Theo
   module Rails
-    ATTRIBUTE_NAME = /(?<name>[a-z][\w\-:@]*)/
+    ATTRIBUTE_NAME = /(?<name>[\w:@_][-\w:@_]*)/
     ATTRIBUTE_VALUE = /(?:(?:"(?<value>[^"]*)")|(?:'(?<value>[^']*)'))/
     ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{ATTRIBUTE_VALUE.source})|#{ATTRIBUTE_NAME.source})/
     DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{ATTRIBUTE_VALUE.source})|(?:#{ATTRIBUTE_NAME.source}%))/

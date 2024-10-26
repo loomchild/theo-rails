@@ -37,69 +37,69 @@ RSpec.describe Theo::Rails::Theo do
   context 'partial' do
     context 'self-closing partial' do
       include_examples 'theo to erb', 'evaluates simple partial',
-                       %(<Partial />),
+                       %(<_partial />),
                        %(<%= render partial: 'partial' %>)
 
       include_examples 'theo to erb', 'evaluates multi-word partial',
-                       %(<SomePartial />),
+                       %(<_some-partial />),
                        %(<%= render partial: 'some_partial' %>)
 
       include_examples 'theo to erb', 'evaluates partial with attributes',
-                       %(<Partial attr1="value1" attr2="value2"/>),
+                       %(<_partial attr1="value1" attr2="value2"/>),
                        %(<%= render partial: 'partial', locals: {'attr1': 'value1', 'attr2': 'value2'} %>)
 
       include_examples 'theo to erb', 'evaluates partial with dynamic attribute',
-                       %(<Partial attr1%="1 + 1"/>),
+                       %(<_partial attr1%="1 + 1"/>),
                        %(<%= render partial: 'partial', locals: {'attr1': 1 + 1} %>)
     end
 
     context 'partial with content block' do
       include_examples 'theo to erb', 'evaluates simple partial',
-                       %(<Partial>Content <span>text</span></Partial>),
+                       %(<_partial>Content <span>text</span></_partial>),
                        %(<%= render 'partial' do %>Content <span>text</span><% end %>)
 
       include_examples 'theo to erb', 'evaluates partial with attributes',
-                       %(<Partial attr1="value1" attr2="value2">Content <span>text</span></Partial>),
+                       %(<_partial attr1="value1" attr2="value2">Content <span>text</span></_partial>),
                        %(<%= render 'partial', {'attr1': 'value1', 'attr2': 'value2'} do %>Content <span>text</span><% end %>)
 
       include_examples 'theo to erb', 'evaluates partial with dynamic attribute',
-                       %(<Partial attr1%="1 + 1">Content <span>text</span></Partial>),
+                       %(<_partial attr1%="1 + 1">Content <span>text</span></_partial>),
                        %(<%= render 'partial', {'attr1': 1 + 1} do %>Content <span>text</span><% end %>)
 
       include_examples 'theo to erb', 'evaluates partial with multiline content',
-                       %(<Partial>
+                       %(<_partial>
                           Content
                           <span>text</span>
-                        </Partial>),
+                        </_partial>),
                        %(<%= render 'partial' do %>
                           Content
                           <span>text</span>
                         <% end %>)
 
       include_examples 'theo to erb', 'evaluates partial with yields attribute',
-                       %(<Partial yields="item">Content</Partial>),
+                       %(<_partial yields="item">Content</_partial>),
                        %(<%= render 'partial' do |item| %>Content<% end %>)
     end
 
     context 'partial collection' do
       include_examples 'theo to erb', 'evaluates partial collection',
-                       %(<Partial collection="items" />),
+                       %(<_partial collection="items" />),
                        %(<%= render partial: 'partial', collection: items %>)
 
       include_examples 'theo to erb', 'evaluates partial collection with custom variable',
-                       %(<Partial collection="items" as="element" />),
+                       %(<_partial collection="items" as="element" />),
                        %(<%= render partial: 'partial', collection: items, as: 'element' %>)
     end
 
     context 'partial boolean attribute' do
       include_examples 'theo to erb', 'evaluates partial',
-                       %(<Partial attr/>),
+                       %(<_partial attr/>),
                        %(<%= render partial: 'partial', locals: {'attr': ''} %>)
     end
 
     context 'partial from a custom path' do
       include_examples 'theo to erb', 'evaluates partial',
-                       %(<Partial path="partials" />),
+                       %(<_partial path="partials" />),
                        %(<%= render partial: 'partials/partial' %>)
     end
   end

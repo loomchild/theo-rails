@@ -7,7 +7,7 @@ module Theo
     RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     LITERAL_ATTRIBUTES = %i[path as yields collection].freeze
-    PARTIAL_TAG = /(?<partial>[A-Z]\w+)/
+    PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
 
@@ -50,7 +50,7 @@ module Theo
           is_partial = !is_component
 
           if is_partial
-            partial = partial.underscore
+            partial = partial.delete_prefix('_').underscore
 
             partial = "#{path}/#{partial}" if path
 
@@ -108,7 +108,10 @@ module Theo
       end
 
       def view_component_exists?(component)
-        view_component_loaded? && Object.const_defined?("#{component}Component")
+        return unless view_component_loaded?
+
+        is_capitalized = /^[A-Z]/.match?(component)
+        is_capitalized && Object.const_defined?("#{component}Component")
       end
 
       def call(template, source = nil)

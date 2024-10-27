@@ -114,6 +114,21 @@ module Theo
         is_capitalized && Object.const_defined?("#{component}Component")
       end
 
+      def translate_location(spot, backtrace_location, source)
+        result = ActionView::Template::Handlers::ERB.new.translate_location(spot, backtrace_location, source)
+
+        return unless result.nil?
+
+        # TODO: More precise location handling, see ERB::Util for inspiration
+        lineno_delta = ActionView::Base.annotate_rendered_view_with_filenames ? 1 : 0
+        spot[:first_lineno] -= lineno_delta
+        spot[:last_lineno] -= lineno_delta
+        spot[:first_column] = 0
+        spot[:last_column] = 0
+        spot[:script_lines] = source.lines
+        spot
+      end
+
       def call(template, source = nil)
         theo = process(source)
 

@@ -13,13 +13,13 @@ Thanks to Hotwire, it's now possible to build sophisticated server-rendered user
 
 With Theo, you can render a partial using HTML-like syntax:
 ```html
-<_button size="large" label%="label" primary% />
+<_button size="large" label%="label" />
 ```
 
 > [!IMPORTANT]
-> For rendering partials, you can also use PascalCase, for example:
+> For rendering partials, you can also use PascalCase:
 > ```html
-> <Button size="large" label%="label" primary% />
+> <Button size="large" label%="label" />
 > ```
 
 

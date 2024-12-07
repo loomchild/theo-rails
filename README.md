@@ -13,8 +13,14 @@ Thanks to Hotwire, it's now possible to build sophisticated server-rendered user
 
 With Theo, you can render a partial using HTML-like syntax:
 ```html
-<_button size="large" label%="label" />
+<_button size="large" label%="label" primary% />
 ```
+
+> [!IMPORTANT]
+> For rendering partials, you can also use PascalCase, for example:
+> ```html
+> <Button size="large" label%="label" primary% />
+> ```
 
 
 ## Getting started
@@ -56,7 +62,7 @@ is equivalent to:
 ```erb
 <a href="<%= root_path %>">Home</a>
 ```
-> [!TIP]  
+> [!TIP]
 > Computed attributes work with partials as well as standard HTML tags.
 
 #### Short form
@@ -101,6 +107,7 @@ is equivalent to:
 <%= render 'special_button', size: 'large' %>
 ```
 
+> [!TIP]
 > Alternatively, you can also use PascalCase, for example:
 > ```html
 > <SpecialButton size="large" />

@@ -46,10 +46,18 @@ module Theo
 
           locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')
 
-          is_component = view_component_exists?(partial)
-          is_partial = !is_component
+          component = resolve_view_component(partial)
 
-          if is_partial
+          if component.present?
+            if content
+              output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
+            elsif collection
+              locals = ", #{locals}" unless locals.empty?
+              output = "<%= render #{component}.with_collection(#{collection}#{locals}) %>"
+            else
+              output = "<%= render #{component}.new(#{locals}) %>"
+            end
+          else
             partial = partial.delete_prefix('_').underscore
 
             partial = "#{path}/#{partial}" if path
@@ -63,17 +71,6 @@ module Theo
             else
               locals = ", locals: {#{locals}}" unless locals.empty?
               output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
-            end
-          else
-            component = "#{partial}Component"
-
-            if content
-              output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
-            elsif collection
-              locals = ", #{locals}" unless locals.empty?
-              output = "<%= render #{component}.with_collection(#{collection}#{locals}) %>"
-            else
-              output = "<%= render #{component}.new(#{locals}) %>"
             end
           end
 
@@ -107,11 +104,12 @@ module Theo
         @view_component_loaded ||= Object.const_defined?('ViewComponent')
       end
 
-      def view_component_exists?(component)
+      def resolve_view_component(component)
         return unless view_component_loaded?
 
-        is_capitalized = /^[A-Z]/.match?(component)
-        is_capitalized && Object.const_defined?("#{component}Component")
+        # safe_constantize ensures CamelCase
+        klass = component.safe_constantize || "#{component}Component".safe_constantize
+        klass.to_s if klass&.< ViewComponent::Base
       end
 
       def translate_location(spot, backtrace_location, source)

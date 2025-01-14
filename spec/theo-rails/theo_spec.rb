@@ -3,6 +3,15 @@ require 'spec_helper'
 class WidgetComponent < ViewComponent::Base
 end
 
+class Button < ViewComponent::Base
+end
+
+class Avatar < ViewComponent::Base
+end
+
+class AvatarComponent < ViewComponent::Base
+end
+
 RSpec.shared_examples 'theo to erb' do |name, input, output|
   let(:theo) { Theo::Rails::Theo.new }
 
@@ -145,6 +154,22 @@ RSpec.describe Theo::Rails::Theo do
       include_examples 'theo to erb', 'evaluates partial collection with attributes',
                        %(<Widget collection="widgets" attr1="value1" attr2="value2" />),
                        %(<%= render WidgetComponent.with_collection(widgets, 'attr1': 'value1', 'attr2': 'value2') %>)
+    end
+
+    context 'component without "Component" suffix' do
+      include_examples 'theo to erb', 'evaluates simple component',
+                       %(<Button />),
+                       %(<%= render Button.new() %>)
+    end
+
+    context 'competing component names' do
+      include_examples 'theo to erb', 'evaluates direct match',
+                       %(<Avatar />),
+                       %(<%= render Avatar.new() %>)
+
+      include_examples 'theo to erb', 'evaluates direct match with "Component" suffix',
+                       %(<AvatarComponent />),
+                       %(<%= render AvatarComponent.new() %>)
     end
   end
 

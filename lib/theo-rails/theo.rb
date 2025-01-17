@@ -107,9 +107,9 @@ module Theo
       def resolve_view_component(component)
         return unless view_component_loaded?
 
-        # safe_constantize ensures CamelCase
+        # safe_constantize ensures PascalCase
         klass = component.safe_constantize || "#{component}Component".safe_constantize
-        klass.to_s if klass&.< ViewComponent::Base
+        klass.name if klass&.< ViewComponent::Base
       end
 
       def translate_location(spot, backtrace_location, source)

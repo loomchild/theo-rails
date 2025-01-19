@@ -46,8 +46,8 @@ module Theo
 
           locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')
 
-          is_component = view_component_exists?(partial)
-          is_partial = !is_component
+          component = resolve_view_component(partial)
+          is_partial = component.nil?
 
           if is_partial
             partial = partial.delete_prefix('_').underscore
@@ -65,8 +65,6 @@ module Theo
               output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
             end
           else
-            component = "#{partial}Component"
-
             if content
               output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
             elsif collection
@@ -107,11 +105,12 @@ module Theo
         @view_component_loaded ||= Object.const_defined?('ViewComponent')
       end
 
-      def view_component_exists?(component)
+      def resolve_view_component(component)
         return unless view_component_loaded?
 
-        is_capitalized = /^[A-Z]/.match?(component)
-        is_capitalized && Object.const_defined?("#{component}Component")
+        # safe_constantize ensures PascalCase
+        klass = component.safe_constantize || "#{component}Component".safe_constantize
+        klass.name if klass && klass < ViewComponent::Base
       end
 
       def translate_location(spot, backtrace_location, source)

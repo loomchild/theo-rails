@@ -47,17 +47,9 @@ module Theo
           locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')
 
           component = resolve_view_component(partial)
+          is_partial = component.nil?
 
-          if component.present?
-            if content
-              output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
-            elsif collection
-              locals = ", #{locals}" unless locals.empty?
-              output = "<%= render #{component}.with_collection(#{collection}#{locals}) %>"
-            else
-              output = "<%= render #{component}.new(#{locals}) %>"
-            end
-          else
+          if is_partial
             partial = partial.delete_prefix('_').underscore
 
             partial = "#{path}/#{partial}" if path
@@ -71,6 +63,15 @@ module Theo
             else
               locals = ", locals: {#{locals}}" unless locals.empty?
               output = "<%= render partial: '#{partial}'#{collection}#{locals} %>"
+            end
+          else
+            if content
+              output = "<%= render #{component}.new(#{locals}) do#{yields} %>#{process(content)}<% end %>"
+            elsif collection
+              locals = ", #{locals}" unless locals.empty?
+              output = "<%= render #{component}.with_collection(#{collection}#{locals}) %>"
+            else
+              output = "<%= render #{component}.new(#{locals}) %>"
             end
           end
 
@@ -109,7 +110,7 @@ module Theo
 
         # safe_constantize ensures PascalCase
         klass = component.safe_constantize || "#{component}Component".safe_constantize
-        klass.name if klass&.< ViewComponent::Base
+        klass.name if klass && klass < ViewComponent::Base
       end
 
       def translate_location(spot, backtrace_location, source)

@@ -31,11 +31,8 @@ Run
 
     bundle add theo-rails
 
-### Configure
-
-If you are using TailwindCSS, add `.theo` extension to the `content` key in your `tailwind.config.js`:
-
-    './app/views/**/*.{erb,haml,html,slim,theo}'
+> [!TIP]
+> If you are using TailwindCSS version 3, add `.theo` extension to the `content` key in your `tailwind.config.js`: `./app/views/**/*.{erb,haml,html,slim,theo}`.
 
 ### Try
 

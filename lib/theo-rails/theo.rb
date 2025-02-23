@@ -5,8 +5,12 @@ module Theo
     ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{ATTRIBUTE_VALUE.source})|#{ATTRIBUTE_NAME.source})/
     DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{ATTRIBUTE_VALUE.source})|(?:#{ATTRIBUTE_NAME.source}%))/
     RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
+    CLASS_ATTRIBUTE=/(?:\s+class\s*=\s*#{ATTRIBUTE_VALUE.source})/
+    STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{ATTRIBUTE_VALUE.source})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
+    ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source})*)/
     LITERAL_ATTRIBUTES = %i[path as yields collection].freeze
+    TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<\w+#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
@@ -14,15 +18,45 @@ module Theo
     class Theo
       def process(source)
         # Attributes
-        source = source.gsub(DYNAMIC_ATTRIBUTE) do |_|
+        source = source.gsub(TAG_WITH_DYNAMIC_ATTRIBUTE) do |_|
           match = Regexp.last_match
 
-          name = match[:name]
+          tag = match[0]
 
-          # See https://island94.org/2024/06/rails-strict-locals-local_assigns-and-reserved-keywords for more info
-          value = match[:value] || (RESERVED_ATTRIBUTE_NAME.include?(name) ? "binding.local_variable_get('#{name}')" : name)
+          remove_attributes = []
 
-          "#{name}=\"<%= #{value} %>\""
+          tag = tag.gsub(DYNAMIC_ATTRIBUTE) do |_|
+            match = Regexp.last_match
+
+            name = match[:name]
+
+            # See https://island94.org/2024/06/rails-strict-locals-local_assigns-and-reserved-keywords for more info
+            value = match[:value] || (RESERVED_ATTRIBUTE_NAME.include?(name) ? "binding.local_variable_get('#{name}')" : name)
+
+            if name == 'class'
+              class_attribute = CLASS_ATTRIBUTE.match(tag)
+
+              if class_attribute
+                remove_attributes += [class_attribute[0]]
+                next "#{name}=\"<%= (#{value}).to_s + ' #{class_attribute[:value]}' %>\""
+              end
+            end
+
+            if name == 'style'
+              style_attribute = STYLE_ATTRIBUTE.match(tag)
+
+              if style_attribute
+                remove_attributes += [style_attribute[0]]
+                next "#{name}=\"<%= (#{value}).to_s + '; #{style_attribute[:value]}' %>\""
+              end
+            end
+
+            "#{name}=\"<%= #{value} %>\""
+          end
+
+          remove_attributes.each { |remove_attribute| tag = tag.sub(remove_attribute, '') }
+
+          tag
         end
 
         # Partials

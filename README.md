@@ -66,30 +66,48 @@ is equivalent to:
 
 If value of a dynamic attribute is the same as its name, you can omit the value.
 
-For example
+For example:
 ```html
-<div style%>Text</div>
+<img src%>
 ```
 is equivalent to:
 ```erb
-<div style%="style">Text</div>
+<img src%="src">
 ```
 which in turn is equivalent to:
 ```erb
-<div style="<%= style %>">Text</div>
+<img src="<%= src %>">
 ```
 
-Since `class` is a Ruby keyword, it's treated specially:
+> [!NOTE]
+> Since reserved ruby keywords such as `class` can't be used as variable names but still can be passed as locals to a partial, they are converted to the following:
+> ```erb
+> <div class="<%= binding.local_variable_get('class') %>">Text</div>
+> ```
+
+#### Merging class and style attributes
+You can specify both static and dynamic version of `class` and `style` attribute on a tag, and they will be merged.
+
+For example:
 ```html
-<div class%>Text</div>
+<div class% class="big" style% style="color: red">Text</div>
 ```
 is equivalent to:
 ```erb
-<div class="<%= binding.local_variable_get('class') %>">Text</div>
+<div class="<%= binding.local_variable_get('class').to_s + ' big' %>" class="big" style="<%= style.to_s + '; color: red' %>">Text</div>
 ```
 
-> [!TIP]
-> Short form is especially useful when you want to apply a `class` and `style` attribute to a partial root.
+This is especially useful when you want to apply a `class` and `style` attribute to a partial root and merge the dynamic local with default value. For example, if you have the following `\_button` partial:
+```erb
+<%# locals: (class: nil) -%>
+<button class% class="big">Button</button>
+```html
+it can be used as follows:
+<_button class="blue" />
+which will render:
+```html
+<button class="big blue">Button</button>
+```
 
 ### Partials
 

@@ -38,6 +38,14 @@ RSpec.describe Theo::Rails::Theo do
                      %(<div class%>Content</div>),
                      %(<div class="<%= binding.local_variable_get('class') %>">Content</div>)
 
+    include_examples 'theo to erb', 'merges class attribute',
+                     %(<span class="red" data="dummy" class%="1 + 1">Text</span>),
+                     %(<span data="dummy" class="<%= (1 + 1).to_s + ' red' %>">Text</span>)
+
+    include_examples 'theo to erb', 'merges style attribute',
+                     %(<span style="color: red" data="dummy" style%="'opacity: ' + 1/2">Text</span>),
+                     %(<span data="dummy" style="<%= ('opacity: ' + 1/2).to_s + '; color: red' %>">Text</span>)
+
     include_examples 'theo to erb', 'ignores trim symbols',
                      %(<%- variable -%>),
                      %(<%- variable -%>)

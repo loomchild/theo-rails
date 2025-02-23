@@ -105,6 +105,7 @@ This is especially useful when you want to apply a `class` and `style` attribute
 that is used as follows:
 ```html
 <_button class="blue" />
+```
 it will render:
 ```html
 <button class="big blue">Button</button>

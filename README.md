@@ -85,7 +85,7 @@ which in turn is equivalent to:
 > <div class="<%= binding.local_variable_get('class') %>">Text</div>
 > ```
 
-#### Merging class and style attributes
+#### Merging `class` and `style` attributes
 You can specify both static and dynamic version of `class` and `style` attribute on a tag, and they will be merged.
 
 For example:
@@ -94,17 +94,18 @@ For example:
 ```
 is equivalent to:
 ```erb
-<div class="<%= binding.local_variable_get('class').to_s + ' big' %>" class="big" style="<%= style.to_s + '; color: red' %>">Text</div>
+<div class="<%= binding.local_variable_get('class').to_s + ' big' %>" style="<%= style.to_s + '; color: red' %>">Text</div>
 ```
 
-This is especially useful when you want to apply a `class` and `style` attribute to a partial root and merge the dynamic local with default value. For example, if you have the following `\_button` partial:
+This is especially useful when you want to apply a `class` and `style` attribute to a partial root and merge the dynamic local with default value. For example, if you have the following partial:
 ```erb
 <%# locals: (class: nil) -%>
 <button class% class="big">Button</button>
+```
+that is used as follows:
 ```html
-it can be used as follows:
 <_button class="blue" />
-which will render:
+it will render:
 ```html
 <button class="big blue">Button</button>
 ```

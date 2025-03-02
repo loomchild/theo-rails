@@ -1,6 +1,6 @@
 module Theo
   module Rails
-    ATTRIBUTE_NAME = /(?<name>[\w:@_][-\w:@_]*)/
+    ATTRIBUTE_NAME = /(?<name>[\w:@_%][-\w:@_]*)/
     ATTRIBUTE_VALUE = /(?:(?:"(?<value>[^"]*)")|(?:'(?<value>[^']*)'))/
     ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{ATTRIBUTE_VALUE.source})|#{ATTRIBUTE_NAME.source})/
     DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{ATTRIBUTE_VALUE.source})|(?:#{ATTRIBUTE_NAME.source}%))/
@@ -9,7 +9,7 @@ module Theo
     STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{ATTRIBUTE_VALUE.source})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source})*)/
-    LITERAL_ATTRIBUTES = %i[path as yields collection].freeze
+    LITERAL_ATTRIBUTES = %i[%path %as %yields %collection].freeze
     TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<\w+#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
@@ -70,12 +70,12 @@ module Theo
 
           attributes = process_attributes(attributes)
 
-          path = attributes.delete(:path)
+          path = attributes.delete(:'%path')
 
-          collection = attributes.delete(:collection)
-          as = attributes.delete(:as)
+          collection = attributes.delete(:'%collection')
+          as = attributes.delete(:'%as')
 
-          yields = attributes.delete(:yields)
+          yields = attributes.delete(:'%yields')
           yields = " |#{yields}|" if yields
 
           locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')

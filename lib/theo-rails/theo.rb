@@ -9,7 +9,7 @@ module Theo
     STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{ATTRIBUTE_VALUE.source})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source})*)/
-    LITERAL_ATTRIBUTES = %i[%path %as %yields %collection].freeze
+    SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection].freeze
     TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<\w+#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
@@ -120,7 +120,7 @@ module Theo
           .map do |attr|
             name = attr[:name].to_sym
             value = attr[:value]
-            value = attribute(value) unless LITERAL_ATTRIBUTES.include?(name)
+            value = attribute(value) unless SPECIAL_ATTRIBUTES.include?(name)
             [name, value]
           end
           .to_h

@@ -36,7 +36,7 @@ Run
 
 ### Try
 
-Create a new view named 'hello.html.theo` (note the `.theo` suffix), with the following content:
+Create a new view named `hello.html.theo` (note the `.theo` suffix), with the following content:
 ```html
 <span style%="'background-color: ' + 'yellow'">Hello from Theo!</span>
 ```
@@ -134,7 +134,7 @@ Special attributes always start with `%` and their value is always dynamic.
 
 #### Collections
 
-You can render a collection of partials using '%collection' special attribute:
+You can render a collection of partials using `%collection` special attribute:
 ```html
 <_widget %collection="widgets" />
 ```
@@ -150,7 +150,7 @@ You can also customize the local variable name via the `%as` special attribute, 
 
 #### Path
 
-To render a partial from another folder, use the '%path' special attribute, e.g.:
+To render a partial from another folder, use the `%path` special attribute, e.g.:
 ```html
 <_widget %path="widgets" />
 ```

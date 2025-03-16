@@ -13,10 +13,11 @@ module Theo
     STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{attribute_value})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source})*)/
-    SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection %if].freeze
     TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<\w+#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
+    SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection %if].freeze
+    VOID_TAGS=%i[area base br col embed hr img input link meta source track wbr]
     IF_SPECIAL_ATTRIBUTE = /(?<special> %if\s*=\s*#{attribute_value('specvalue')})/
-    TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*\/>)/m
+    TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*\/>)|(?:<(?<tag>#{VOID_TAGS.join('|')})#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/

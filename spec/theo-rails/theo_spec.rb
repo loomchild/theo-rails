@@ -60,12 +60,9 @@ RSpec.describe Theo::Rails::Theo do
                      %(<span %if="condition" class%="cls">Text</span>),
                      %(<% if condition %>\n<span class="<%= cls %>">Text</span>\n<% end %>)
 
-    include_examples 'theo to erb', 'surrounds self-closing tag with if conditional',
-                     %(<img %if="condition" src="one.jpg"/>),
-                     %(<% if condition %>\n<img src="one.jpg"/>\n<% end %>)
-
-    #TODO BUMP
-    #TODO: maybe also indicate which HTML tags don't require closing
+    include_examples 'theo to erb', 'surrounds void tag with if conditional',
+                     %(<img %if="condition" src="one.jpg">),
+                     %(<% if condition %>\n<img src="one.jpg">\n<% end %>)
 
     #include_examples 'theo to erb', 'surrounds tag with if conditional',
     #                 %(<span %if="condition">Text <span>nested</span></span>),
@@ -149,6 +146,10 @@ RSpec.describe Theo::Rails::Theo do
       include_examples 'theo to erb', 'surrounds partial tag with if conditional',
                        %(<_partial %if="condition">Content</_partial>),
                        %(<% if condition %>\n<%= render 'partial' do %>Content<% end %>\n<% end %>)
+
+      include_examples 'theo to erb', 'surrounds self-closing partial tag with if conditional',
+                       %(<_partial %if="condition" />),
+                       %(<% if condition %>\n<%= render partial: 'partial' %>\n<% end %>)
     end
   end
 

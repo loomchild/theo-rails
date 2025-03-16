@@ -1,16 +1,22 @@
 module Theo
   module Rails
+    def self.attribute_value(name = 'value')
+      /(?:(?:"(?<#{name}>[^"]*)")|(?:'(?<#{name}>[^']*)'))/.source
+    end
+
     ATTRIBUTE_NAME = /(?<name>[\w:@_%][-\w:@_]*)/
     ATTRIBUTE_VALUE = /(?:(?:"(?<value>[^"]*)")|(?:'(?<value>[^']*)'))/
-    ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{ATTRIBUTE_VALUE.source})|#{ATTRIBUTE_NAME.source})/
-    DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{ATTRIBUTE_VALUE.source})|(?:#{ATTRIBUTE_NAME.source}%))/
+    ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{attribute_value})|#{ATTRIBUTE_NAME.source})/
+    DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{attribute_value('dynvalue')})|(?:#{ATTRIBUTE_NAME.source}%))/
     RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
-    CLASS_ATTRIBUTE=/(?:\s+class\s*=\s*#{ATTRIBUTE_VALUE.source})/
-    STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{ATTRIBUTE_VALUE.source})/
+    CLASS_ATTRIBUTE=/(?:\s+class\s*=\s*#{attribute_value})/
+    STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{attribute_value})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source})*)/
-    SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection].freeze
+    SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection %if].freeze
     TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<\w+#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
+    IF_SPECIAL_ATTRIBUTE = /(?<special> %if\s*=\s*#{attribute_value('specvalue')})/
+    TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*\/>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
@@ -31,7 +37,7 @@ module Theo
             name = match[:name]
 
             # See https://island94.org/2024/06/rails-strict-locals-local_assigns-and-reserved-keywords for more info
-            value = match[:value] || (RESERVED_ATTRIBUTE_NAME.include?(name) ? "binding.local_variable_get('#{name}')" : name)
+            value = match[:dynvalue] || (RESERVED_ATTRIBUTE_NAME.include?(name) ? "binding.local_variable_get('#{name}')" : name)
 
             if name == 'class'
               class_attribute = CLASS_ATTRIBUTE.match(tag)
@@ -57,6 +63,13 @@ module Theo
           remove_attributes.each { |remove_attribute| tag = tag.sub(remove_attribute, '') }
 
           tag
+        end
+
+        # Specials
+        source = source.gsub(TAG_WITH_IF_SPECIAL_ATTRIBUTE) do |_|
+          match = Regexp.last_match
+
+          "<% if #{match[:specvalue]} %>\n#{match[0].sub(match[:special], '')}\n<% end %>" \
         end
 
         # Partials

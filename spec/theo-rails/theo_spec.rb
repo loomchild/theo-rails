@@ -51,6 +51,27 @@ RSpec.describe Theo::Rails::Theo do
                      %(<%- variable -%>)
   end
 
+  context 'if special attribute' do
+    include_examples 'theo to erb', 'surrounds tag with if conditional',
+                     %(<span %if="condition">Text</span>),
+                     %(<% if condition %>\n<span>Text</span>\n<% end %>)
+
+    include_examples 'theo to erb', 'surrounds tag with if conditional and interprets dynamic attributes',
+                     %(<span %if="condition" class%="cls">Text</span>),
+                     %(<% if condition %>\n<span class="<%= cls %>">Text</span>\n<% end %>)
+
+    include_examples 'theo to erb', 'surrounds self-closing tag with if conditional',
+                     %(<img %if="condition" src="one.jpg"/>),
+                     %(<% if condition %>\n<img src="one.jpg"/>\n<% end %>)
+
+    #TODO BUMP
+    #TODO: maybe also indicate which HTML tags don't require closing
+
+    #include_examples 'theo to erb', 'surrounds tag with if conditional',
+    #                 %(<span %if="condition">Text <span>nested</span></span>),
+    #                 %(<% if condition %>\n<span>Text <span>nested</span></span>\n<% end %>)
+  end
+
   context 'partial' do
     context 'self-closing partial' do
       include_examples 'theo to erb', 'evaluates simple partial',
@@ -122,6 +143,12 @@ RSpec.describe Theo::Rails::Theo do
       include_examples 'theo to erb', 'evaluates partial',
                        %(<_partial %path="partials" />),
                        %(<%= render partial: 'partials/partial' %>)
+    end
+
+    context 'partial with special attribute' do
+      include_examples 'theo to erb', 'surrounds partial tag with if conditional',
+                       %(<_partial %if="condition">Content</_partial>),
+                       %(<% if condition %>\n<%= render 'partial' do %>Content<% end %>\n<% end %>)
     end
   end
 

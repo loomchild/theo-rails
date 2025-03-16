@@ -141,23 +141,6 @@ Naturally, partials can also include content, e.g.:
 > [!TIP]
 > Rendered partials can be implemented in ERB, Theo or any other template language.
 
-
-#### Collections
-
-You can render a collection of partials as follows:
-```html
-<_widget collection="widgets" />
-```
-which is equivalent to:
-```erb
-<%= render partial: 'widget', collection: widgets %>
-```
-
-You can also customize the local variable name via the `as` attribute, e.g.:
-```html
-<_widget collection="widgets" as="item" />
-```
-
 #### Boolean attributes
 
 If an attribute has no value, you can omit it, for example:
@@ -169,24 +152,38 @@ is equivalent to:
 <_button disabled="" />
 ```
 
+#### Collections
+
+You can render a collection of partials using '%collection' special attribute:
+```html
+<_widget %collection="widgets" />
+```
+which is equivalent to:
+```erb
+<%= render partial: 'widget', collection: widgets %>
+```
+
+You can also customize the local variable name via the `%as` special attribute, e.g.:
+```html
+<_widget %collection="widgets" %as="item" />
+```
 
 #### Path
 
-To render a partial from another folder, use the 'path' attribute, e.g.:
+To render a partial from another folder, use the '%path' special attribute, e.g.:
 ```html
-<_widget path="widgets" />
+<_widget %path="widgets" />
 ```
 is equivalent to:
 ```erb
 <%= render 'widgets/widget' %>
 ```
 
-
-#### `yields` attribute
+#### Yields
 
 Partials can yield a value, such as a builder object that can be used by child partials. For example:
 ```html
-<_widget-builder yields="widget">
+<_widget-builder %yields="widget">
   <_widget-element widget%="widget" />
 </_widget-builder>
 ```
@@ -199,7 +196,7 @@ is equivalent to:
 
 #### `provide` and `inject` helpers
 
-Instead of using `yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
+Instead of using `%yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
 ```html
 <_widget-builder>
   <_widget-element />
@@ -296,7 +293,7 @@ is equivalent to:
 
 Components can yield a value:
 ```html
-<Button size="large" yields="component">
+<Button size="large" %yields="component">
   <% component.with_header do %>Icon<% end %>
   Create
 </Button>
@@ -304,7 +301,7 @@ Components can yield a value:
 
 You can also render a component collection as follows:
 ```html
-<Widget collection="widgets" />
+<Widget %collection="widgets" />
 ```
 which is equivalent to:
 ```erb

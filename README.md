@@ -85,32 +85,6 @@ which in turn is equivalent to:
 > <div class="<%= binding.local_variable_get('class') %>">Text</div>
 > ```
 
-#### Merging `class` and `style` attributes
-You can specify both static and dynamic version of `class` and `style` attribute on a tag, and they will be merged.
-
-For example:
-```html
-<div class% class="big" style% style="color: red">Text</div>
-```
-is equivalent to:
-```erb
-<div class="<%= binding.local_variable_get('class').to_s + ' big' %>" style="<%= style.to_s + '; color: red' %>">Text</div>
-```
-
-This is especially useful when you want to apply a `class` and `style` attribute to a partial root and merge the dynamic local with default value. For example, if you have the following partial:
-```erb
-<%# locals: (class: nil) -%>
-<button class% class="big">Button</button>
-```
-that is used as follows:
-```html
-<_button class="blue" />
-```
-it will render:
-```html
-<button class="big blue">Button</button>
-```
-
 ### Partials
 
 Rendering a partial in ERB requires context-switching between HTML markup and Ruby code, and the `render` verb makes it difficult to imagine a page as a component structure.
@@ -141,9 +115,9 @@ Naturally, partials can also include content, e.g.:
 > [!TIP]
 > Rendered partials can be implemented in ERB, Theo or any other template language.
 
-#### Boolean attributes
+#### Boolean partial attributes
 
-If an attribute has no value, you can omit it, for example:
+If a partial attribute has no value, you can omit it, for example:
 ```html
 <_button disabled />
 ```
@@ -151,6 +125,12 @@ is equivalent to:
 ```html
 <_button disabled="" />
 ```
+
+
+### Special attributes
+
+Special attributes always start with `%` and their value is always dynamic.
+
 
 #### Collections
 
@@ -194,6 +174,63 @@ is equivalent to:
 <% end %>
 ```
 
+#### Conditionals
+
+You can omit the tag conditionally using `%if` special attribute:
+```
+<span %if="content"><%= content %></span>
+```
+is equivalent to:
+```erb
+<% if content %>
+  <span><%= content %></span>
+<% end %>
+```
+
+It also works with partials, so this will work as expected:
+<_special-button %if="count > 3" size="large" />
+
+> [!NOTE]
+> This functionality doesn't currently support nested tags. Please use standard ERB conditions in complex scenarios. 
+
+
+### ERB backwards compatibility
+
+You can freely mix ERB and Theo syntax, e.g.:
+```erb
+<% if total_amount > 100 %>
+  <_free-shipping amount%="total_amount" />
+<% end %>
+```
+
+### Utilities
+
+#### Merging `class` and `style` attributes
+You can specify both static and dynamic version of `class` and `style` attribute on a tag, and they will be merged.
+
+For example:
+```html
+<div class% class="big" style% style="color: red">Text</div>
+```
+is equivalent to:
+```erb
+<div class="<%= binding.local_variable_get('class').to_s + ' big' %>" style="<%= style.to_s + '; color: red' %>">Text</div>
+```
+
+This is especially useful when you want to apply a `class` and `style` attribute to a partial root and merge the dynamic local with default value. For example, if you have the following partial:
+```erb
+<%# locals: (class: nil) -%>
+<button class% class="big">Button</button>
+```
+that is used as follows:
+```html
+<_button class="blue" />
+```
+it will render:
+```html
+<button class="big blue">Button</button>
+```
+
 #### `provide` and `inject` helpers
 
 Instead of using `%yields` attribute, a parent partial can indirectly pass a variable to its children using the `provide` and `inject` helpers. The example above can be modified as follows:
@@ -217,16 +254,6 @@ Instead of using `%yields` attribute, a parent partial can indirectly pass a var
 
 > [!NOTE]
 > This technique is used by [form partials](#form-partials). Use it sparingly, as implicit variables can reduce code readability. 
-
-
-### ERB backwards compatibility
-
-You can freely mix ERB and Theo syntax, e.g.:
-```erb
-<% if total_amount > 100 %>
-  <_free-shipping amount%="total_amount" />
-<% end %>
-```
 
 
 ## Forms

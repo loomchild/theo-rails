@@ -188,10 +188,12 @@ is equivalent to:
 ```
 
 It also works with partials, so this will work as expected:
+```
 <_special-button %if="count > 3" size="large" />
+```
 
 > [!NOTE]
-> This functionality doesn't currently support nested tags. Please use standard ERB conditions in complex scenarios. 
+> Conditionals can't be applied to nested tags (e.g. `div` in `div`). Please use ERB conditions in such cases. 
 
 
 ### ERB backwards compatibility
@@ -256,7 +258,7 @@ Instead of using `%yields` attribute, a parent partial can indirectly pass a var
 > This technique is used by [form partials](#form-partials). Use it sparingly, as implicit variables can reduce code readability. 
 
 
-## Forms
+#### Forms
 
 You can build a `<form>` element in ERB using [ActionView form helpers](https://guides.rubyonrails.org/form_helpers.html). Theo provides corresponding partials. For example:
 ```html

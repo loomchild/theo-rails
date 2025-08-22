@@ -4,7 +4,7 @@ module Theo
       /(?:(?:"(?<#{name}>[^"]*)")|(?:'(?<#{name}>[^']*)'))/.source
     end
 
-    ATTRIBUTE_NAME = /(?<name>[\w:@_%][-\w:@_]*)/
+    ATTRIBUTE_NAME = /(?<name>[\w:@_%][-\w:@_.]*)/
     ATTRIBUTE_VALUE = /(?:(?:"(?<value>[^"]*)")|(?:'(?<value>[^']*)'))/
     ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{attribute_value})|#{ATTRIBUTE_NAME.source})/
     DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{attribute_value('dynvalue')})|(?:#{ATTRIBUTE_NAME.source}%))/

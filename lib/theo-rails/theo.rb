@@ -45,7 +45,7 @@ module Theo
 
               if class_attribute
                 remove_attributes += [class_attribute[0]]
-                next "#{name}=\"<%= (#{value}).to_s + ' #{class_attribute[:value]}' %>\""
+                value = "(#{value}).to_s + ' #{class_attribute[:value]}'"
               end
             end
 
@@ -54,7 +54,7 @@ module Theo
 
               if style_attribute
                 remove_attributes += [style_attribute[0]]
-                next "#{name}=\"<%= (#{value}).to_s + '; #{style_attribute[:value]}' %>\""
+                value = "(#{value}).to_s + '; #{style_attribute[:value]}'"
               end
             end
 

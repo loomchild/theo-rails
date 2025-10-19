@@ -9,13 +9,13 @@ module Theo
     ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{attribute_value})|#{ATTRIBUTE_NAME.source})/
     DYNAMIC_ATTRIBUTE = /(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{attribute_value('dynvalue')})|(?:#{ATTRIBUTE_NAME.source}%))/
     RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
-    CLASS_ATTRIBUTE=/(?:\s+class\s*=\s*#{attribute_value})/
-    STYLE_ATTRIBUTE=/(?:\s+style\s*=\s*#{attribute_value})/
+    CLASS_ATTRIBUTE = /(?:\s+class\s*=\s*#{attribute_value})/
+    STYLE_ATTRIBUTE = /(?:\s+style\s*=\s*#{attribute_value})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source})*)/
-    TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<\w+#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
+    TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<(?<tagname>\w+)#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
     SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection %if].freeze
-    VOID_TAGS=%i[area base br col embed hr img input link meta source track wbr]
+    VOID_TAGS = %i[area base br col embed hr img input link meta source track wbr]
     IF_SPECIAL_ATTRIBUTE = /(?<special> %if\s*=\s*#{attribute_value('specvalue')})/
     TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*\/>)|(?:<(?<tag>#{VOID_TAGS.join('|')})#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
@@ -29,6 +29,7 @@ module Theo
           match = Regexp.last_match
 
           tag = match[0]
+          tagname = match[:tagname]
 
           remove_attributes = []
 
@@ -58,7 +59,9 @@ module Theo
               end
             end
 
-            "#{name}=\"<%= #{value} %>\""
+           "#{name}=\"<%= #{value} %>\"" unless tagname.start_with?('_')
+
+            "<% unless (_val = #{value}).nil? %>#{name}=\"<%= _val %>\"<% end %>"
           end
 
           remove_attributes.each { |remove_attribute| tag = tag.sub(remove_attribute, '') }

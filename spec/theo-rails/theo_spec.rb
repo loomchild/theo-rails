@@ -280,10 +280,10 @@ RSpec.describe Theo::Rails::Theo do
 
     context 'partial with special attribute' do
       it 'surrounds partial tag with if conditional' do
-        theo = %(<_partial %path="partials" />)
+        theo = %(<_partial %if="condition">Content</_partial>)
 
         expect(to_erb(theo)).to eq %(<% if condition %>\n<%= render 'partial' do %>Content<% end %>\n<% end %>)
-        expect(to_html(theo, condition: true)).to eq %(<div partial>Content</div>)
+        expect(to_html(theo, condition: true)).to eq %(\n<div partial>Content</div>\n)
       end
 
       it 'surrounds self-closing partial tag with if conditional' do

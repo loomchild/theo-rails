@@ -17,19 +17,27 @@ module Theo
     SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection %if].freeze
     VOID_TAGS = %i[area base br col embed hr img input link meta source track wbr]
     IF_SPECIAL_ATTRIBUTE = /(?<special> %if\s*=\s*#{attribute_value('specvalue')})/
-    TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*\/>)|(?:<(?<tag>#{VOID_TAGS.join('|')})#{ATTRIBUTES.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES.source}\s*>)/m
+    TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/>)|(?:<(?<tag>#{VOID_TAGS.join('|')})#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
     DYNAMIC_EXPRESSION = /^<%=([^%]*)%>$/
 
     class Theo
       def process(source)
+        # Specials
+        source = source.gsub(TAG_WITH_IF_SPECIAL_ATTRIBUTE) do |_|
+          match = Regexp.last_match
+
+          "<% if #{match[:specvalue]} %>\n#{match[0].sub(match[:special], '')}\n<% end %>" \
+        end
+
         # Attributes
         source = source.gsub(TAG_WITH_DYNAMIC_ATTRIBUTE) do |_|
           match = Regexp.last_match
 
           tag = match[0]
-          tagname = match[:tagname]
+          # TODO: maybe separate matching partials and non-partial attributes completely
+          is_partial = /^[_A-Z]/.match?(match[:tagname])
 
           remove_attributes = []
 
@@ -59,7 +67,7 @@ module Theo
               end
             end
 
-           "#{name}=\"<%= #{value} %>\"" unless tagname.start_with?('_')
+            next "#{name}=\"<%= #{value} %>\"" if is_partial
 
             "<% unless (_val = #{value}).nil? %>#{name}=\"<%= _val %>\"<% end %>"
           end
@@ -67,13 +75,6 @@ module Theo
           remove_attributes.each { |remove_attribute| tag = tag.sub(remove_attribute, '') }
 
           tag
-        end
-
-        # Specials
-        source = source.gsub(TAG_WITH_IF_SPECIAL_ATTRIBUTE) do |_|
-          match = Regexp.last_match
-
-          "<% if #{match[:specvalue]} %>\n#{match[0].sub(match[:special], '')}\n<% end %>" \
         end
 
         # Partials

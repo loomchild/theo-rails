@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    theo-rails (0.3.1)
+    theo-rails (0.5.2)
 
 GEM
   remote: https://rubygems.org/
@@ -23,6 +23,7 @@ GEM
     connection_pool (2.4.1)
     diff-lcs (1.5.1)
     drb (2.2.1)
+    erubi (1.13.1)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     logger (1.6.1)
@@ -50,6 +51,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (~> 7)
+  erubi (~> 1.13.1)
   rspec (~> 3)
   theo-rails!
 

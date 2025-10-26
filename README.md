@@ -55,7 +55,7 @@ In Theo, an attribute with computed value can be expressed using `%=`. For examp
 ```html
 <a href%="root_path">Home</a>
 ```
-is roughly equivalent[\*](#erasing-falsy-attributes) to:
+is equivalent to:
 ```erb
 <a href="<%= root_path %>">Home</a>
 ```
@@ -79,17 +79,17 @@ which in turn is equivalent to:
 <img src="<%= src %>">
 ```
 
-#### <a id="erasing-failsy-attributes"></a>Erasing falsy attributes from HTML tags
+#### Boolean HTML attributes
 
-If value of attribute is falsy (`false` or `nil`), then it will be omitted from the resulting markup. This is achieved by wrapping each attribute in a condition.
+Some standard HTML attributes, such as `disabled`, `required` or `checked`, are boolean, which means that they have a `true` value when they're present and a `false` value when they're not. If value of such attribute is falsy (`false` or `nil`), then it will be omitted from the resulting markup, otherwise an empty attribute will be included.
 
 For example:
 ```html
-<input name="login" disabled%>
+<input name="login" disabled%="can_login">
 ```
 is equivalent to:
 ```erb
-<input name="login" <% if (_val = disabled) %>disabled="<%= _val %>"<% end %>>
+<input name="login" <% if can_login %>disabled<% end %>>
 ```
 
 > [!NOTE]
@@ -128,7 +128,9 @@ Naturally, partials can also include content, e.g.:
 
 #### Boolean partial attributes
 
-If a partial attribute has no value, you can omit it, for example:
+If a partial attribute value is not important and it only matters whether it's `truthy` or `falsy`, you can omit it.
+
+For example:
 ```html
 <_button disabled />
 ```

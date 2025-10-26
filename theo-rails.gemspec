@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name        = "theo-rails"
-  spec.version     = "0.5.2"
+  spec.version     = "0.5.3"
   spec.summary     = "Theo is HTML-like template language"
   spec.description = "HTML-like template language for Rails with natural partial syntax"
   spec.authors     = ["Jarek Lipski"]

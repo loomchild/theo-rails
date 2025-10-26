@@ -80,43 +80,44 @@ RSpec.describe Theo::Rails::Theo do
     it 'evaluates dynamic attribute' do
       theo = %(<a href%="2 % 2 == 0 ? '/even' : '/odd'">Link</a>)
 
-      expect(to_erb(theo)).to eq %(<a <% if (_val = 2 % 2 == 0 ? '/even' : '/odd') %>href="<%= _val %>"<% end %>>Link</a>)
+      expect(to_erb(theo)).to eq %(<a href="<%= 2 % 2 == 0 ? '/even' : '/odd' %>">Link</a>)
       expect(to_html(theo)).to eq %(<a href="/even">Link</a>)
     end
 
     it 'evaluates shortened dynamic attribute' do
       theo = %(<a href%>Link</a>)
 
-      expect(to_erb(theo)).to eq %(<a <% if (_val = href) %>href="<%= _val %>"<% end %>>Link</a>)
+      expect(to_erb(theo)).to eq %(<a href="<%= href %>">Link</a>)
       expect(to_html(theo, href: '/one')).to eq %(<a href="/one">Link</a>)
     end
 
     it 'evaluates shortened reserved dynamic attribute' do
       theo = %(<div class%>Content</div>)
 
-      expect(to_erb(theo)).to eq %(<div <% if (_val = binding.local_variable_get('class')) %>class="<%= _val %>"<% end %>>Content</div>)
+      expect(to_erb(theo)).to eq %(<div class="<%= binding.local_variable_get('class') %>">Content</div>)
       expect(to_html(theo, class: 'red')).to eq %(<div class="red">Content</div>)
     end
 
     it 'merges class attribute' do
       theo = %(<span class="red" data="dummy" class%="1 + 1">Text</span>)
 
-      expect(to_erb(theo)).to eq %(<span data="dummy" <% if (_val = (1 + 1).to_s + ' red') %>class="<%= _val %>"<% end %>>Text</span>)
+      expect(to_erb(theo)).to eq %(<span data="dummy" class="<%= (1 + 1).to_s + ' red' %>">Text</span>)
       expect(to_html(theo)).to eq %(<span data="dummy" class="2 red">Text</span>)
     end
 
     it 'merges style attribute' do
       theo = %(<span style="color: red" data="dummy" style%="'opacity: ' + (1.0/2).to_s">Text</span>)
 
-      expect(to_erb(theo)).to eq %(<span data="dummy" <% if (_val = ('opacity: ' + (1.0/2).to_s).to_s + '; color: red') %>style="<%= _val %>"<% end %>>Text</span>)
+      expect(to_erb(theo)).to eq %(<span data="dummy" style="<%= ('opacity: ' + (1.0/2).to_s).to_s + '; color: red' %>">Text</span>)
       expect(to_html(theo)).to eq %(<span data="dummy" style="opacity: 0.5; color: red">Text</span>)
     end
 
-    it 'erases dynamic attribute with nil value in normal tags' do
-      theo = %(<div title%="nil">Content</div>)
+    it 'handles boolean attributes in HTML tags' do
+      theo = %(<input disabled%="locked">)
 
-      expect(to_erb(theo)).to eq %(<div <% if (_val = nil) %>title="<%= _val %>"<% end %>>Content</div>)
-      expect(to_html(theo)).to eq %(<div >Content</div>)
+      expect(to_erb(theo)).to eq %(<input <% if locked %>disabled<% end %>>)
+      expect(to_html(theo, locked: true)).to eq %(<input disabled>)
+      expect(to_html(theo, locked: false)).to eq %(<input >)
     end
 
     it 'ignores trim symbols' do
@@ -127,10 +128,10 @@ RSpec.describe Theo::Rails::Theo do
     end
 
     it 'ignores % percent in attribute value' do
-      theo = %(<span style="transform: translateX(calc(-100% - 48px))" data-test%="false">Text</span>)
+      theo = %(<span style="transform: translateX(calc(-100% - 48px))" data-test%="true">Text</span>)
 
-      expect(to_erb(theo)).to eq %(<span style="transform: translateX(calc(-100% - 48px))" <% if (_val = false) %>data-test="<%= _val %>"<% end %>>Text</span>)
-      expect(to_html(theo)).to eq %(<span style="transform: translateX(calc(-100% - 48px))" >Text</span>)
+      expect(to_erb(theo)).to eq %(<span style="transform: translateX(calc(-100% - 48px))" data-test="<%= true %>">Text</span>)
+      expect(to_html(theo)).to eq %(<span style="transform: translateX(calc(-100% - 48px))" data-test="true">Text</span>)
     end
   end
 
@@ -145,7 +146,7 @@ RSpec.describe Theo::Rails::Theo do
     it 'surrounds tag with if conditional and interprets dynamic attributes' do
       theo = %(<span %if="condition" class%="cls">Text</span>)
 
-      expect(to_erb(theo)).to eq %(<% if condition %>\n<span <% if (_val = cls) %>class="<%= _val %>"<% end %>>Text</span>\n<% end %>)
+      expect(to_erb(theo)).to eq %(<% if condition %>\n<span class="<%= cls %>">Text</span>\n<% end %>)
       expect(to_html(theo, condition: true, cls: 'red')).to eq %(\n<span class="red">Text</span>\n)
     end
 

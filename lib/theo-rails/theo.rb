@@ -9,6 +9,8 @@ module Theo
     ATTRIBUTE = /(?:(?<=\s)(?:(?:#{ATTRIBUTE_NAME.source}\s*=\s*#{attribute_value})|#{ATTRIBUTE_NAME.source}))/
     DYNAMIC_ATTRIBUTE = /(?:(?<=\s)(?:(?:#{ATTRIBUTE_NAME.source}\s*%=\s*#{attribute_value('dynvalue')})|(?:#{ATTRIBUTE_NAME.source}%)))/
     RESERVED_ATTRIBUTE_NAME = %w[alias and begin break case class def do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield].to_set
+    # Source: https://meiert.com/blog/boolean-attributes-of-html/
+    BOOLEAN_ATTRIBUTE_NAME = %w[allowfullscreen alpha async autofocus autoplay checked controls default defer disabled formnovalidate inert ismap itemscope loop multiple muted nomodule novalidate open playsinline readonly required reversed selected shadowrootclonable shadowrootcustomelementregistry shadowrootdelegatesfocus shadowrootserializable]
     CLASS_ATTRIBUTE = /(?:\s+class\s*=\s*#{attribute_value})/
     STYLE_ATTRIBUTE = /(?:\s+style\s*=\s*#{attribute_value})/
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
@@ -56,9 +58,7 @@ module Theo
                 remove_attributes += [class_attribute[0]]
                 value = "(#{value}).to_s + ' #{class_attribute[:value]}'"
               end
-            end
-
-            if name == 'style'
+            elsif name == 'style'
               style_attribute = STYLE_ATTRIBUTE.match(tag)
 
               if style_attribute
@@ -67,9 +67,9 @@ module Theo
               end
             end
 
-            next "#{name}=\"<%= #{value} %>\"" if is_partial
+            next "<% if #{value} %>#{name}<% end %>" if BOOLEAN_ATTRIBUTE_NAME.include?(name) unless is_partial
 
-            "<% if (_val = #{value}) %>#{name}=\"<%= _val %>\"<% end %>"
+            "#{name}=\"<%= #{value} %>\""
           end
 
           remove_attributes.each { |remove_attribute| tag = tag.sub(remove_attribute, '') }

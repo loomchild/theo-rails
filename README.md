@@ -55,7 +55,7 @@ In Theo, an attribute with computed value can be expressed using `%=`. For examp
 ```html
 <a href%="root_path">Home</a>
 ```
-is equivalent to:
+is roughly equivalent[\*](#erasing-falsy-attributes) to:
 ```erb
 <a href="<%= root_path %>">Home</a>
 ```
@@ -79,11 +79,22 @@ which in turn is equivalent to:
 <img src="<%= src %>">
 ```
 
+#### <a id="erasing-failsy-attributes"></a>Erasing falsy attributes from HTML tags
+
+If value of attribute is falsy (`false` or `nil`), then it will be omitted from the resulting markup. This is achieved by wrapping each attribute in a condition.
+
+For example:
+```html
+<input name="login" disabled%>
+```
+is equivalent to:
+```erb
+<input name="login" <% if (_val = disabled) %>disabled="<%= _val %>"<% end %>>
+```
+
 > [!NOTE]
-> Since reserved ruby keywords such as `class` can't be used as variable names but still can be passed as locals to a partial, they are converted to the following:
-> ```erb
-> <div class="<%= binding.local_variable_get('class') %>">Text</div>
-> ```
+> It only affects attributes of standard HTML tags, falsy attributes are passed to partials as-is.
+
 
 ### Partials
 
@@ -187,13 +198,13 @@ is equivalent to:
 <% end %>
 ```
 
-It also works with partials, so this will work as expected:
+It also works with partials, so this will skip rendering unless the condition is met:
 ```
 <_special-button %if="count > 3" size="large" />
 ```
 
 > [!NOTE]
-> Conditionals can't be applied to nested tags (e.g. `div` in `div`). Please use ERB conditions in such cases. 
+> Conditionals can't yet be applied to nested tags (e.g. `div` inside `div`). Please use ERB conditions in such cases.
 
 
 ### ERB backwards compatibility
@@ -232,6 +243,18 @@ it will render:
 ```html
 <button class="big blue">Button</button>
 ```
+
+> [!NOTE]
+> Since reserved ruby keywords such as `class` can't be used as variable names but still can be passed as locals to a partial, they are retrieved from a binding.
+> 
+> For example:
+> ```html
+> <div class%>Content</div>
+> ```
+> is equivalent to:
+> ```erb
+> <div class="<%= binding.local_variable_get('class') %>">Content</div>
+> ```
 
 #### `provide` and `inject` helpers
 
@@ -311,7 +334,7 @@ class ButtonComponent < ViewComponent::Base
 end
 ```
 
-If a components exists, and you use PascalCase syntax, Theo automatically renders it instead of a partial. Therefore:
+If a component exists, and you use PascalCase syntax, Theo automatically renders it instead of a partial. Therefore:
 ```html
 <Button size="large" />
 ```

@@ -137,33 +137,39 @@ RSpec.describe Theo::Rails::Theo do
 
   context 'if special attribute' do
     it 'surrounds tag with if conditional' do
-      theo = %(<span %if="condition">Text</span>)
+      theo = %(<span t-if="condition">Text</span>)
 
       expect(to_erb(theo)).to eq %(<% if condition %>\n<span>Text</span>\n<% end %>)
       expect(to_html(theo, condition: true)).to eq %(\n<span>Text</span>\n)
     end
 
     it 'surrounds tag with if conditional and interprets dynamic attributes' do
-      theo = %(<span %if="condition" class%="cls">Text</span>)
+      theo = %(<span t-if="condition" class%="cls">Text</span>)
 
       expect(to_erb(theo)).to eq %(<% if condition %>\n<span class="<%= cls %>">Text</span>\n<% end %>)
       expect(to_html(theo, condition: true, cls: 'red')).to eq %(\n<span class="red">Text</span>\n)
     end
 
     it 'surrounds void tag with if conditional' do
-      theo = %(<img %if="condition" src="one.jpg">)
+      theo = %(<img t-if="condition" src="one.jpg">)
 
       expect(to_erb(theo)).to eq %(<% if condition %>\n<img src="one.jpg">\n<% end %>)
       expect(to_html(theo, condition: true)).to eq %(\n<img src="one.jpg">\n)
     end
 
     it 'surrounds nested tag with if conditional', skip: 'not supported' do
-      theo = %(<span %if="condition">Text <span>nested</span></span>)
+      theo = %(<span t-if="condition">Text <span>nested</span></span>)
 
       expect(to_erb(theo)).to eq %(<% if condition %>\n<span>Text <span>nested</span></span>\n<% end %>)
       expect(to_html(theo, condition: true)).to eq %(\n<span>Text <span>nested</span></span>\n)
     end
 
+    it 'legacy %if directive surrounds tag with if conditional' do
+      theo = %(<span %if="condition">Text</span>)
+
+      expect(to_erb(theo)).to eq %(<% if condition %>\n<span>Text</span>\n<% end %>)
+      expect(to_html(theo, condition: true)).to eq %(\n<span>Text</span>\n)
+    end
   end
 
   context 'partial' do
@@ -245,7 +251,7 @@ RSpec.describe Theo::Rails::Theo do
       end
 
       it 'evaluates partial with yields attribute' do
-        theo = %(<_partial %yields="item">Content</_partial>)
+        theo = %(<_partial t-yields="item">Content</_partial>)
 
         expect(to_erb(theo)).to eq %(<%= render 'partial' do |item| %>Content<% end %>)
         expect(to_html(theo)).to eq %(<div partial>Content</div>)
@@ -254,14 +260,14 @@ RSpec.describe Theo::Rails::Theo do
 
     context 'partial collection' do
       it 'evaluates partial collection' do
-        theo = %(<_partial %collection="items" />)
+        theo = %(<_partial t-collection="items" />)
 
         expect(to_erb(theo)).to eq %(<%= render partial: 'partial', collection: items %>)
         expect(to_html(theo, items: [])).to eq %(<div partial collection="[]"></div>)
       end
 
       it 'evaluates partial collection with custom variable' do
-        theo = %(<_partial %collection="items" %as="element" />)
+        theo = %(<_partial t-collection="items" t-as="element" />)
 
         expect(to_erb(theo)).to eq %(<%= render partial: 'partial', collection: items, as: 'element' %>)
         expect(to_html(theo, items: [])).to eq %(<div partial collection="[]" as="element"></div>)
@@ -279,7 +285,7 @@ RSpec.describe Theo::Rails::Theo do
 
     context 'partial from a custom path' do
       it 'evaluates partial' do
-        theo = %(<_partial %path="partials" />)
+        theo = %(<_partial t-path="partials" />)
 
         expect(to_erb(theo)).to eq %(<%= render partial: 'partials/partial' %>)
         expect(to_html(theo)).to eq %(<div partials/partial></div>)
@@ -288,14 +294,14 @@ RSpec.describe Theo::Rails::Theo do
 
     context 'partial with special attribute' do
       it 'surrounds partial tag with if conditional' do
-        theo = %(<_partial %if="condition">Content</_partial>)
+        theo = %(<_partial t-if="condition">Content</_partial>)
 
         expect(to_erb(theo)).to eq %(<% if condition %>\n<%= render 'partial' do %>Content<% end %>\n<% end %>)
         expect(to_html(theo, condition: true)).to eq %(\n<div partial>Content</div>\n)
       end
 
       it 'surrounds self-closing partial tag with if conditional' do
-        theo = %(<_partial %if="condition" />)
+        theo = %(<_partial t-if="condition" />)
 
         expect(to_erb(theo)).to eq %(<% if condition %>\n<%= render partial: 'partial' %>\n<% end %>)
         expect(to_html(theo, condition: true)).to eq %(\n<div partial></div>\n)
@@ -343,7 +349,7 @@ RSpec.describe Theo::Rails::Theo do
       end
 
       it 'evaluates partial with yields attribute' do
-        theo = %(<Widget %yields="component">Content <span>text</span></Widget>)
+        theo = %(<Widget t-yields="component">Content <span>text</span></Widget>)
 
         expect(to_erb(theo)).to eq %(<%= render WidgetComponent.new() do |component| %>Content <span>text</span><% end %>)
         expect(to_html(theo)).to eq %(<div WidgetComponent>Content <span>text</span></div>)
@@ -352,7 +358,7 @@ RSpec.describe Theo::Rails::Theo do
 
     context 'component collection' do
       it 'evaluates partial collection' do
-        theo = %(<Widget %collection="widgets" />)
+        theo = %(<Widget t-collection="widgets" />)
 
         expect(to_erb(theo)).to eq %(<%= render WidgetComponent.with_collection(widgets) %>)
         expect(to_html(theo, widgets: [])).to eq %(<div WidgetComponent collection="[]"></div>)

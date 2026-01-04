@@ -16,9 +16,9 @@ module Theo
     ATTRIBUTES = /(?<attrs>(?:\s+#{ATTRIBUTE.source})*)/
     ATTRIBUTES_INCLUDING_DYNAMIC = /(?<attrs>(?:\s+(?:#{ATTRIBUTE.source}|#{DYNAMIC_ATTRIBUTE.source}))*)/
     TAG_WITH_DYNAMIC_ATTRIBUTE = /(?:<(?<tagname>\w+)#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s+#{DYNAMIC_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/?>)/m
-    SPECIAL_ATTRIBUTES = %i[%path %as %yields %collection %if].freeze
+    SPECIAL_ATTRIBUTES = %i[t-path t-as t-yields t-collection t-if %path %as %yields %collection %if].freeze
     VOID_TAGS = %i[area base br col embed hr img input link meta source track wbr]
-    IF_SPECIAL_ATTRIBUTE = /(?<special>\s%if\s*=\s*#{attribute_value('specvalue')})/
+    IF_SPECIAL_ATTRIBUTE = /(?<special>\s(?:t-if|%if)\s*=\s*#{attribute_value('specvalue')})/
     TAG_WITH_IF_SPECIAL_ATTRIBUTE = /(?:<(?<tag>\w+)#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*>.*?<\/\k<tag>>)|(?:<(?<tag>\w+)#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*\/>)|(?:<(?<tag>#{VOID_TAGS.join('|')})#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*#{IF_SPECIAL_ATTRIBUTE.source}#{ATTRIBUTES_INCLUDING_DYNAMIC.source}\s*>)/m
     PARTIAL_TAG = /(?:(?<partial>[A-Z]\w+)|(?<partial>_[\w-]+))/
     PARTIAL = /(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*>(?<content>.*?)<\/\k<partial>>)|(?:<#{PARTIAL_TAG.source}#{ATTRIBUTES.source}\s*\/>)/m
@@ -88,12 +88,12 @@ module Theo
 
           attributes = process_attributes(attributes)
 
-          path = attributes.delete(:'%path')
+          path = attributes.delete(:'t-path') || attributes.delete(:'%path')
 
-          collection = attributes.delete(:'%collection')
-          as = attributes.delete(:'%as')
+          collection = attributes.delete(:'t-collection') || attributes.delete(:'%collection')
+          as = attributes.delete(:'t-as') || attributes.delete(:'%as')
 
-          yields = attributes.delete(:'%yields')
+          yields = attributes.delete(:'t-yields') || attributes.delete(:'%yields')
           yields = " |#{yields}|" if yields
 
           locals = attributes.empty? ? '' : attributes.map { |k, v| "'#{k}': #{v}" }.join(', ')
